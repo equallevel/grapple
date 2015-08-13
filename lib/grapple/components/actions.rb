@@ -10,9 +10,8 @@ module Grapple
 					if action.kind_of?(String)
 						html << action
 					else
-						# TODO: why are we deleting the label and url?
-						label = action.delete(:label)
-						url = action.delete(:url)
+						label = action[:label]
+						url = action[:url]
 						html << template.send(link_to_helper, label, url, action)
 					end
 				end			
