@@ -1,18 +1,39 @@
 # grapple
-Customizable data table for Rails
+Customizable data grid for Rails
+
+## Features
+* Modular design
+* Server side rendering
+* Usable out of the box
+* Sorting
+* Searching/Filtering
+* Pagination
+* AJAX
 
 ## Installation
 
 ``` ruby
-## Gemfile for Rails 3+
+# Gemfile for Rails 3+
 gem 'grapple'
 ```
 
 ``` css
-# app/assets/stylesheets/application.css
+/* app/assets/stylesheets/application.css */
 *= require grapple
 ```
-	
+
+## Dependencies
+Rails 3+
+
+
+Optional Dependencies:
+
+will_paginate - for pagination support
+
+jQuery - for AJAX support
+
+history.js - for back button support when using the AJAX data table
+
 ## Table Builders
 HtmlTableBuilder - A basic HTML table builder
 
@@ -67,13 +88,12 @@ app/views/posts/index.html.erb
 		<td><%= link_to 'Destroy', post, confirm: 'Are you sure?', method: :delete %></td>
 	<% end %>
 <% end %>
-
 ```
 
 ## Sorting
 TODO
 
-## Paging (will_paginate)
+## Pagination (requires will_paginate)
 app/controllers/posts_controller.rb
 ``` ruby
 def index
@@ -111,7 +131,55 @@ The Actions component can be used to generate buttons/links for actions related 
 ```
 
 ## AJAX
-TODO
+The AjaxDataGridBuilder generates tables that can update their content using AJAX rather than re-loading the page.  jQuery is required.
+``` javascript
+// app/assets/javascripts/application.js
+//= require grapple
+//= require grapple-jquery
+```
 
-# Customizing
+``` ruby
+# app/controllers/posts_controller.rb
+class PostsController < ApplicationController
+	def index
+		@posts = table_results
+	end
+	
+	# Method called by AJAX requests - renders the table without a layout
+	def table
+		@posts = table_results
+		render partial: 'table'
+	end
+	
+protected
+
+	def table_results
+		Post.paginate(page: params[:page] || 1, per_page: 10)
+	end
+end
+```
+
+Create a container around the table that can be updated by the JavaScript
+``` HTML+ERB
+<%# app/views/posts/index.html.erb %>
+<%= grapple_container(id: 'posts_table') do %>
+	<%= render :partial => 'table' %>
+<% end %>
+```
+
+Render the table using `table_for` in `app/views/posts/_table.html.erb`
+
+## History w/AJAX (back button)
+
+Requires: https://github.com/browserstate/history.js/
+
+``` javascript
+// app/assets/javascripts/application.js
+//= require jquery-history
+//= require grapple
+//= require grapple-history
+//= require grapple-jquery
+```
+
+## Customizing
 TODO
