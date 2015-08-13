@@ -14,7 +14,7 @@ describe 'search form' do
 		
 		html = builder.search_form()
 
-		puts html
+		#puts html
 
 		expect(html).to have_tag('form.search-form', with: {method: "post"}) do
 			with_tag('input', with: {type: "hidden", name: "page"})
