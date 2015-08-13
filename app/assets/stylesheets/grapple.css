@@ -1,0 +1,252 @@
+/*************************
+ **		Core              **
+ *************************/
+
+.grapple {
+	position: relative;
+}
+
+.grapple table {
+	border-collapse: collapse;
+}
+
+.grapple thead .column-headers th {
+	white-space: nowrap; /* Don't wrap text in column headers */
+}
+
+.grapple thead .sortable {
+	cursor: pointer;
+}
+
+
+/*************************
+ **		Skin              **
+ *************************/
+
+.grapple table {
+	/* 1px border at the top of the table */
+	border: 1px solid #cbcbcb; 
+	border-width: 1px 0 0 0;
+}
+
+/* Cells */
+.grapple td, .grapple th {
+	padding: 4px 10px;
+	border: 1px solid #cbcbcb;
+	border-width: 0 1px;
+}
+
+/* Loading */
+.grapple-loading table {
+	opacity: 0.5;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+	filter: alpha(opacity=50);
+}
+
+.grapple .loading-overlay {
+	display: none;
+	position: absolute;
+	height: 19px;
+	width: 100%;
+	top: 150px;
+	left: 0;
+	background: url("grapple/loading-bar.gif") no-repeat scroll center center transparent;
+}
+
+.grapple.grapple-loading .loading-overlay {
+	display: block;
+}
+
+/* Grapple AJAX */
+.grapple-ajax-loading .search-form, 
+.grapple-ajax-loading .pagination, 
+.grapple-ajax-loading .column-headers {
+	/* Hide interactive elements until javascript finishes initializing */
+	visibility: hidden;
+}
+
+
+/**************** Header ****************/
+
+/* Column Headers */
+.grapple thead .column-headers th {
+	font-size: 108%;
+	border-bottom: 1px solid #cbcbcb;
+	border-top: 1px solid #cbcbcb;
+	background-color: #eee;
+}
+
+/* Sortable Column Headings */
+.grapple thead .sortable:hover {
+	background-color: #e0e0e0;
+}
+
+.grapple thead .sortable a:hover {
+	text-decoration: none;
+}
+
+.grapple thead .column-headers th.sorted {
+	background-color: #e0e0e0;
+}
+
+.grapple thead .sortable .sort-asc {
+	/* TODO: put in sprite */
+	background: url("grapple/arrow-up.png") no-repeat scroll right center transparent;
+}
+
+.grapple thead .sortable .sort-desc {
+	/* TODO: put in sprite */
+	background: url("grapple/arrow-down.png") no-repeat scroll right center transparent;
+}
+
+/* Infobar */
+.grapple thead .infobar th{
+	border-bottom: 1px solid #aaa;
+}
+
+/* Toolbar */
+.grapple .toolbar th {
+	background: #cbcbcb;
+	border-bottom: 1px solid #aaa;
+	/*border-width: 0;*/
+}
+
+/* Search Form */
+.grapple .search-form {
+	float: left;
+	padding: 3px 0;
+}
+
+.grapple .search-form .search-icon {
+	margin-left: 5px;
+}
+
+.grapple .search-form * {
+	vertical-align: middle;
+}
+
+.grapple .search-form table,
+.grapple .search-form table td {
+	border: 0;
+	padding: 0;
+}
+
+.grapple .search-form table td {
+	padding-right: 5px;
+}
+
+/* Actions */
+.grapple .toolbar .actions {
+	height: 22px;
+	float: right;
+}
+
+
+/**************** Footer ****************/
+
+/* Footer */
+.grapple tfoot td {
+	background-color: #fff;
+	border-top: 1px solid #cbcbcb;
+	border-width: 1px 0 0 0;
+}
+
+/* Pagination */
+.grapple tfoot .pagination {
+	display: block;
+	width: 100%;
+	text-align: center;
+	margin: 6px 0;
+}
+
+.grapple .pagination .disabled.previous_page,
+.grapple .pagination .disabled.next_page {
+	display: none;
+}
+
+.grapple .pagination .current {
+	font-weight: bold;
+	background-color: transparent;
+	border: medium none;
+	padding: 3px 6px;
+}
+
+.grapple .pagination a {
+	background-color: #FFFFFF;
+	border: 1px solid #CBCBCB;
+	padding: 2px 6px;
+	color: #0066CC;
+	outline: 0 none;
+	text-decoration: underline;
+	margin-left: 1px;
+	margin-right: 1px;
+}
+
+.grapple .pagination .next_page, 
+.grapple .pagination .previous_page {
+	background-color: transparent;
+	border: 0;
+}
+
+
+/**************** Body ****************/
+
+/* Alternating row colors */
+.grapple tbody .even {
+	background-color: #fff;
+}
+
+.grapple tbody .odd {
+	background-color: #edf5ff;
+}
+
+/* Row Actions (for Edit/Delete/Show/etc) */
+.grapple td.actions {
+	white-space: nowrap;
+}
+
+/* Expanding/collapsing content */
+.grapple .expand-icon {
+	background: url('grapple/plus.png') no-repeat;
+}
+
+.grapple .collapse-icon {
+	background: url('grapple/minus.png') no-repeat;
+}
+
+.grapple .spacer, .grapple .expand-icon, .grapple .collapse-icon {
+	padding-left: 10px;
+	float: left;
+	width: 16px;
+	height: 16px;
+	display: block;
+}
+
+/* Nested tables */
+.grapple table.inner-table {
+	border: none;
+}
+
+.grapple table.inner-table {
+	border: none;
+}
+
+.grapple table.inner-table td {
+	border: none;
+	padding: 1px;
+	margin: 0px;
+}
+
+
+/* TODO: Remove this stuff */
+.grapple tbody .red {
+	background-color: #ffdddd;
+}
+.grapple h2 {
+	font-size: 116%;
+	padding: 2px 0;
+}
+
+.grapple .not-ready {
+	visibility: hidden;
+}

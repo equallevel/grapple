@@ -1,0 +1,56 @@
+--- 
+users_001: 
+  id: 1
+  login: jdoe
+  crypted_password: f95659157fe670690ef522c8bc15ea6f583fba77
+  email: jdoe@test12345.com
+  firstname: John
+  lastname: Doe
+  salt: 1565b93dd4226040d687ee21163113a8729532ea
+  created_at: 2009-03-01 14:01:34 Z
+  updated_at: 2010-01-01 02:07:50 Z
+  deleted: false
+users_002: 
+  id: 2
+  login: admin
+  crypted_password: f95659157fe670690ef522c8bc15ea6f583fba77
+  email: admin@test12345.com
+  firstname: Admin
+  lastname: User
+  salt: 1565b93dd4226040d687ee21163113a8729532ea
+  created_at: 2009-03-01 14:01:34 Z
+  updated_at: 2010-01-01 02:07:50 Z
+  deleted: false
+users_003: 
+  id: 2
+  login: admin
+  crypted_password: f95659157fe670690ef522c8bc15ea6f583fba77
+  email: admin@test12345.com
+  firstname: Admin
+  lastname: User
+  salt: 1565b93dd4226040d687ee21163113a8729532ea
+  created_at: 2009-03-01 14:01:34 Z
+  updated_at: 2010-01-01 02:07:50 Z
+  deleted: false
+users_003: 
+  id: 3
+  login: user
+  crypted_password: f95659157fe670690ef522c8bc15ea6f583fba77
+  email: user@test12345.com
+  firstname: User
+  lastname: User
+  salt: 1565b93dd4226040d687ee21163113a8729532ea
+  created_at: 2009-03-01 14:01:34 Z
+  updated_at: 2010-01-01 02:07:50 Z
+  deleted: false
+users_004: 
+  id: 4
+  login: eddie
+  crypted_password: f95659157fe670690ef522c8bc15ea6f583fba77
+  email: eddie@test12345.com
+  firstname: Eddie
+  lastname: Test
+  salt: 1565b93dd4226040d687ee21163113a8729532ea
+  created_at: 2009-03-01 14:01:34 Z
+  updated_at: 2010-01-01 02:07:50 Z
+  deleted: false
