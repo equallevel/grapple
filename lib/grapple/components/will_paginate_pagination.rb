@@ -1,5 +1,14 @@
 module Grapple
 	module Components
+		# Generates paging links using will_paginate.
+		#
+		# @example 
+		#   <%= table_for(columns, Post.paginate(page: 2)) do |t| %>
+		#     <%= t.footer do %>
+		#       <%= t.pagination %>
+		#     <% end %>
+		#   <% end %>
+		#
 		class WillPaginatePagination < HtmlComponent
 
 			setting :no_results_message, :no_search_results
