@@ -23,16 +23,13 @@ gem 'grapple'
 ```
 
 ## Dependencies
-Rails 3+
-
+* Rails 3+
 
 Optional Dependencies:
 
-will_paginate - for pagination support
-
-jQuery - for AJAX support
-
-history.js - for back button support when using the AJAX data table
+* will_paginate - for pagination support
+* jQuery - for AJAX support
+* history.js - for back button support when using the AJAX data table
 
 ## Table Builders
 HtmlTableBuilder - A basic HTML table builder
