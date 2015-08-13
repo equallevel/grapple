@@ -15,11 +15,15 @@ gem 'grapple'
 	
 ## Table Builders
 HtmlTableBuilder - A basic HTML table builder
+
 DataGridBuilder (default) - An HTML table builder with support for paging, filtering, sorting, and actions.
+
 AjaxDataGridBuilder - DataGridBuilder that uses AJAX to retrieve results when sorting/filtering the table.
 
 In an initializer set the default builder:
-  Grapple::Helpers::TableHelper.builder = Grapple::AjaxDataGridBuilder
+``` ruby
+Grapple::Helpers::TableHelper.builder = Grapple::AjaxDataGridBuilder
+```
 
 ## Basic Usage (DataGridBuilder)
 app/controllers/posts_controller.rb
@@ -32,7 +36,7 @@ end
 ```
 
 app/views/posts/index.html.erb
-``` ruby
+``` HTML+ERB
 <%
 	columns = [
 		{ label: 'Name' },
@@ -70,13 +74,41 @@ app/views/posts/index.html.erb
 TODO
 
 ## Paging (will_paginate)
-TODO
+app/controllers/posts_controller.rb
+``` ruby
+def index
+	@posts = Post.paginate(page: params[:page] || 1, per_page: 10)
+end
+```
+
+app/views/posts/index.html.erb
+``` HTML+ERB
+<%= table_for(columns, @posts) do |t| %>
+	<%= t.header %>
+	<%= t.footer do %>
+		<%= t.pagination %>
+	<% end %>
+<% end %>
+```
 
 ## Filtering/Searching
 TODO
 
 ## Actions
-TODO
+The Actions component can be used to generate buttons/links for actions related to the table.  This can be used to provide links to export the data in the table or create new objects.
+``` HTML+ERB
+<%= table_for(columns, @posts) do |t| %>
+	<%= t.header do %>
+		<%= t.toolbar do %>
+			<%= t.actions [
+					{ label: :new_post, url: new_posts_path },
+					{ label: :export_posts, url: export_posts_path }
+				] %>
+		<% end %>
+		<%= t.column_headings %>
+	<% end %>
+<% end %>
+```
 
 ## AJAX
 TODO
