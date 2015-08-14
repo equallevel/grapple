@@ -50,7 +50,10 @@ module Grapple
 			end
 		
 			# Shortcut for translations
+			# Won't try to translate strings, just symbols
 			def t(*args)
+				# Don't translate strings
+				return args[0] if args.length == 1 && args[0].kind_of?(String)
 				begin
 					return template.t(*args) if template.method_defined?(:t)
 				ensure
@@ -58,6 +61,7 @@ module Grapple
 				end
 			end
 		
+			# Number of columns in the table
 			def num_columns
 				@columns.length
 			end
@@ -71,6 +75,7 @@ module Grapple
 				block.nil? ? render_components(components, options, &block).join : capture_block(&block)
 			end
 			
+			# Render an array of components 
 			def render_components(components, options, &block)
 				html = []
 				components.each do |component|
