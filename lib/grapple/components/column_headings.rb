@@ -4,12 +4,13 @@ module Grapple
 
 			setting :alignment_classes, { left: 'text-left', center: 'text-center', right: 'text-right' }
 			setting :tooltip_class, 'table-tooltip'
+			setting :row_class, 'column-headers'
 
 			def render(url_params = {})
 				cols = columns.collect do |column|
 					indent + column_header(column, url_params)
 				end
-				builder.row cols.join("\n"), :class => 'column-headers'
+				builder.row cols.join("\n"), :class => row_class
 			end
 
 			def column_header(column, additional_parameters = {})
@@ -19,15 +20,19 @@ module Grapple
 				liner_classes = []
 				liner_classes << tooltip_class if column[:title].present?
 
+				label = column[:label] || ''
+				# Automatically translate labels if they are symbols
+				label = t(label) if label.is_a?(Symbol)
+				
 				if column[:sort] && params.present?
 					cell_classes << 'sortable'
 					if column[:sort] == params[:sort]
 						liner_classes << (params[:dir] == 'desc' ? 'sort-desc' : 'sort-asc')
 						cell_classes << 'sorted'
 					end
-					content = template.link_to(column[:label], table_url(additional_parameters.merge({:sort => column[:sort]})))
+					content = template.link_to(label, table_url(additional_parameters.merge({sort: column[:sort]})))
 				else
-					content = column[:label]
+					content = label
 				end
 				
 				cell_classes = ' class="' + cell_classes.join(' ') + '"'
