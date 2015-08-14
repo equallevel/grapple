@@ -9,6 +9,7 @@ module Grapple
 		helper :footer, Grapple::Components::HtmlFooter
 
 		def table(content)
+			# TODO: support attributes on the table tag
 			"<table>#{content}</table>\n".html_safe
 		end
 		

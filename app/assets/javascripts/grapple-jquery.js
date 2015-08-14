@@ -16,7 +16,7 @@ var overrideLink = function(clickable, anchor, callback) {
  * Creates a new instance of the Grapple AJAX widget.
  *
  * @param {String} Selector for the table container element.
- * @param {Object} Hash of options for the table (url, history)
+ * @param {Object} Hash of options for the table (url, namespace, history)
  */
 var GrappleTable = function(element, options) {
 	options = options || {};
