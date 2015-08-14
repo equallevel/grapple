@@ -20,9 +20,7 @@ module Grapple
 				liner_classes = []
 				liner_classes << tooltip_class if column[:title].present?
 
-				label = column[:label] || ''
-				# Automatically translate labels if they are symbols
-				label = t(label) if label.is_a?(Symbol)
+				label = t(column[:label] || '')
 				
 				if column[:sort] && params.present?
 					cell_classes << 'sortable'

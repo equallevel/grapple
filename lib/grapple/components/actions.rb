@@ -10,7 +10,7 @@ module Grapple
 					if action.kind_of?(String)
 						html << action
 					else
-						label = action[:label]
+						label = t(action[:label])
 						url = action[:url]
 						html << template.send(link_to_helper, label, url, action)
 					end
