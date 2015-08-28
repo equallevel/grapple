@@ -13,7 +13,7 @@ module Grapple
 			
 			data = {
 				"grapple-ajax-url" => options[:url] || template.url_for(action: 'table'),
-				# History is enabled by default, override container_attributes 
+				# History is disabled by default, override container_attributes 
 				# in an initializer to enable it by default
 				"grapple-ajax-history" => options[:history] == true ? '1' : '0'
 			}
