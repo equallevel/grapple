@@ -9,6 +9,7 @@ module Grapple
 		autoload :HtmlBody
 		autoload :HtmlFooter
 		autoload :HtmlColgroup
+		autoload :HtmlCaption
 		autoload :ColumnHeadings
 		autoload :WillPaginate
 		autoload :Toolbar
