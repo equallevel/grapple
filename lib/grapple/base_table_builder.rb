@@ -11,7 +11,7 @@ module Grapple
 			define_singleton_method(:"class_for_#{name}") { klass }
 			define_singleton_method(:"settings_for_#{name}") { settings }
 		end
-		
+
 		# Update settings for a helper
 		def self.configure(helper_name, *options)
 			settings = options[0] || {}
@@ -34,17 +34,17 @@ module Grapple
 			@options = options[0] || {}
 			@helper_instances = {}
 		end
-		
+
 		def before_table
 			''
 		end
-		
+
 		def after_table
 			''
 		end
 
 	protected
-	
+
 		def invoke_helper(name, *arguments, &block)
 			unless @helper_instances.has_key?(name)
 				klass = self.class.send(:"class_for_#{name}")
@@ -53,6 +53,6 @@ module Grapple
 			end
 			@helper_instances[name].send(:render, *arguments, &block)
 		end
-		
+
 	end
 end
