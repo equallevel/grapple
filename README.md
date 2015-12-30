@@ -88,7 +88,30 @@ app/views/posts/index.html.erb
 ```
 
 ## Sorting
-TODO
+Any column that includes a `sort` key will be rendered with a link that adds sorting parameters to the request.
+The default sort parameters are `sort` for the field to sort and `dir` for the direction to sort the results (ASC or DESC).
+
+app/views/posts/index.html.erb
+``` HTML+ERB
+<% 
+columns = [
+	{ label: "Name", sort: "name" },
+	{ label: "Description", sort: "description" },
+	{ label: "Created At", sort: "created_at" }
+]
+%>
+<%= table_for(columns, @posts) do |t| %>
+	<%= t.header %>
+<% end %>
+```
+
+app/controllers/posts_controller.rb
+``` ruby
+def index
+	sort = (params[:sort] || "name") + " " + (params[:dir] || "asc")
+	@posts = Post.all.order(sort)
+end
+```
 
 ## Pagination (requires will_paginate)
 app/controllers/posts_controller.rb
