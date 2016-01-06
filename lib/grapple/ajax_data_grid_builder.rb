@@ -17,7 +17,11 @@ module Grapple
 				# in an initializer to enable it by default
 				"grapple-ajax-history" => options[:history] == true ? '1' : '0'
 			}
-
+			
+			# The namespace allows the query parameters to be namespaced so 
+			# multiple tables can exist on the same page
+			data["grapple-ajax-namespace"] = options[:namespace] unless options[:namespace].nil?
+			
 			return {
 				:id => options[:id],
 				:class => css,
