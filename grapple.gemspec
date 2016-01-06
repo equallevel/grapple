@@ -1,11 +1,11 @@
 
 Gem::Specification.new do |s|
 	s.name = %q{grapple}
-	s.version = "0.0.5"
+	s.version = "0.0.6"
 
 	s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
 	s.authors = ["Edward Potocko", "Matt Maiatico"]
-	s.date = %q{2015-06-14}
+	s.date = %q{2016-01-06}
 	s.description = %q{Data tables for Rails}
 	s.summary = "Customizable data grid for Rails"
 	s.email = %q{epotocko@equallevel.com}
