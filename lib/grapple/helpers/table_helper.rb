@@ -23,7 +23,7 @@ module Grapple
 				container_attr = builder_class.container_attributes(self, options)
 				html = ''
 				html << builder_class.before_container(self, options)
-				html << tag('div', container_attr, false) + "\n"
+				html << tag('div', container_attr, true) + "\n"
 				html << capture(&block)
 				html << "</div>\n"
 				html << builder_class.after_container(self, options)
