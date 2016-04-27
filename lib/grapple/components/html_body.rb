@@ -8,6 +8,9 @@ module Grapple
 			# and the returned value will be passed as the options to 
 			# the tr tag
 			setting :tr, true
+			
+			# An HTML fragment to render in the body of the table if there are no rows
+			setting :no_rows_html, nil
 
 			def render(*options, &block)
 				options = options[0] || {}
@@ -21,12 +24,16 @@ module Grapple
 				end
 				
 				args = {}
-				html = records.collect do |data|
-					if wrap_row		
-						args = wrap_row.call(template) if wrap_row.is_a?(Proc)
-						builder.row(capture_block { block.call(data) }, args)
-					else
-						indent + capture_block { block.call(data) }
+				if records.empty? && !options[:no_rows_html].nil?
+					html = ["<tr><td colspan=\"#{columns.length}\">#{options[:no_rows_html]}</td></tr>"]
+				else
+					html = records.collect do |data|
+						if wrap_row		
+							args = wrap_row.call(template) if wrap_row.is_a?(Proc)
+							builder.row(capture_block { block.call(data) }, args)
+						else
+							indent + capture_block { block.call(data) }
+						end
 					end
 				end
 				"<tbody>\n#{html.join("\n")}\n</tbody>\n".html_safe
