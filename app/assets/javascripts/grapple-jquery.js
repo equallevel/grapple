@@ -73,7 +73,6 @@ GrappleTable.prototype = {
 	},
 	
 	onHistoryChange: function(params) {
-		console.log("HISTORY CHANGE");
 		this._showLoading();
 		this._updateTable($.param(params));
 	},
@@ -82,16 +81,13 @@ GrappleTable.prototype = {
 	 *
 	 */
 	loadTable: function(params) {
-		console.log("LOAD TABLE ", params);
 		this._showLoading();
 
 		if(this.history) {
-			console.log("ADD History");
 			this.history.unsubscribe();
 			this.history.add(this.namespace, params);
 		}
 		
-		console.log("Update table");
 		this._updateTable(params);
 	},
 	
