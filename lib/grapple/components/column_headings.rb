@@ -22,13 +22,14 @@ module Grapple
 
 				label = t(column[:label] || '')
 				
-				if column[:sort] && params.present?
+				if column[:sort]
 					cell_classes << 'sortable'
 					if column[:sort] == params[:sort]
 						liner_classes << (params[:dir] == 'desc' ? 'sort-desc' : 'sort-asc')
 						cell_classes << 'sorted'
 					end
-					content = template.link_to(label, table_url(additional_parameters.merge({sort: column[:sort]})))
+					url = table_url(additional_parameters.merge({sort: column[:sort]}))
+					content = template.link_to(label, url)
 				else
 					content = label
 				end

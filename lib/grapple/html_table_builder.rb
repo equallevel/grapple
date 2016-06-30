@@ -13,18 +13,30 @@ module Grapple
 		def table(content, attributes = {})
 			"#{template.content_tag('table', content, attributes)}\n".html_safe
 		end
-
-		def self.container_attributes(template, options)
-			return {
-				:class => 'grapple'
-			}
+		
+		# Wrap the table in a div
+		def container(inner_html)
+			html = ''
+			html << before_container
+			html << template.tag('div', container_attributes, true) + "\n"
+			html << inner_html
+			html << "</div>\n"
+			html << after_container
+			return html.html_safe
+		end
+		
+		# HTML attributes for the container
+		def container_attributes
+			{ class: 'grapple' }
 		end
 
-		def self.before_container(template, options)
+		# HTML to render before the container
+		def before_container
 			''
 		end
 
-		def self.after_container(template, options)
+		# HTML to render after the container
+		def after_container
 			''
 		end
 

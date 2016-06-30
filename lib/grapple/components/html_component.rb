@@ -16,7 +16,15 @@ module Grapple
 				if options[:sort] == params[:sort]
 					options[:dir] = (params[:dir] == 'desc') ? 'asc' : 'desc'
 				end
-				template.url_for params.stringify_keys().merge(options.stringify_keys())
+				url_params = params.stringify_keys().merge(options.stringify_keys())
+				if @builder.namespace
+					tmp = {}
+					url_params.each do |key, value|
+						tmp[url_parameter(key)] = value
+					end
+					url_params = tmp
+				end
+				template.url_for url_params
 			end
 
 		end

@@ -182,9 +182,7 @@ end
 Create a container around the table that can be updated by the JavaScript
 ``` HTML+ERB
 <%# app/views/posts/index.html.erb %>
-<%= grapple_container(id: 'posts_table') do %>
-	<%= render :partial => 'table' %>
-<% end %>
+<%= render partial: 'table' %>
 ```
 
 Render the table using `table_for` in `app/views/posts/_table.html.erb`

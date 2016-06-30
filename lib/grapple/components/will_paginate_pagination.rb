@@ -19,6 +19,7 @@ module Grapple
 				elsif !params[:query].blank? and records.empty?
 					html = h(t(no_results_message))
 				else
+					paginate_parameters[:param_name] = url_parameter(:page) if builder.namespace
 					html = template.will_paginate(records, paginate_parameters) || '&nbsp;'
 				end
 

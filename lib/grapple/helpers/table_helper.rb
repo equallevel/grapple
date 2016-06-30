@@ -4,17 +4,23 @@ module Grapple
 
 			@@builder = Grapple::DataGridBuilder
 			mattr_accessor :builder
-
+		
 			def table_for(columns, records, *args, &block)
 				options = args[0] || {}
+				render_container = (options[:container].nil? ? !request.xhr? : options[:container]) rescue false
 				table_html_attributes = options[:html] || {}
-				builder_class = options[:builder] || @@builder
+				options[:builder] = options[:builder] || @@builder
 				# params might not be defined (being called from a mailer)
 				# HACK: "defined? params" is returning method but when it gets called the method is not defined
-				request_params = params() rescue {}
-				builder = builder_class.new(self, columns, records, request_params, options)
+				request_params = request.params() rescue {}
+				builder = options[:builder].new(self, columns, records, request_params, options)
 				output = capture(builder, &block)
-				(builder.before_table + builder.table(output, table_html_attributes) + builder.after_table).html_safe
+				table_html = (builder.before_table + builder.table(output, table_html_attributes) + builder.after_table)
+				if render_container
+					builder.container(table_html)
+				else
+					table_html.html_safe
+				end
 			end
 
 			def grapple_container(*args, &block)

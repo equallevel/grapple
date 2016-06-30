@@ -91,6 +91,11 @@ module Grapple
 				html
 			end
 			
+			# Returns a url parameter in the namespaced format
+			def url_parameter(param)
+				@builder.namespace ? @builder.namespace + '[' + param.to_s + ']' : param.to_s
+			end
+			
 		end
 	end
 end

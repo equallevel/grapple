@@ -28,7 +28,7 @@ var GrappleTable = function(element, options) {
 		this.history = options.history;
 	}
 	else if(this.element.data('grapple-ajax-history') == 1 || options.history === true) {
-		this.history = new Grapple.History();
+		this.history = new Grapple.History(this.namespace);
 	}
 	else {
 		this.history = null;
@@ -65,7 +65,7 @@ GrappleTable.prototype = {
 		if(this.history) {
 			var self = this;
 			this.history.unsubscribe();
-			this.history = new Grapple.History();
+			this.history = new Grapple.History(this.namespace);
 			this.history.subscribe(function(params) {
 				self.onHistoryChange(params);
 			});
@@ -85,7 +85,7 @@ GrappleTable.prototype = {
 
 		if(this.history) {
 			this.history.unsubscribe();
-			this.history.add(this.namespace, params);
+			this.history.add(params);
 		}
 		
 		this._updateTable(params);
@@ -114,7 +114,6 @@ GrappleTable.prototype = {
 		if(params.length) {
 			url += '?' + params;
 		}
-
 		$.ajax(url, {
 			success: function(data) {
 				// HACK
@@ -129,10 +128,7 @@ GrappleTable.prototype = {
 			},
 			error: function(a, b, c) {
 				// TODO: handle loading errors
-				console.log("Failed to load table");
-				console.log(a);
-				console.log(b);
-				console.log(c);
+				console.log("Failed to load table", a, b, c);
 			}
 		});
 	},

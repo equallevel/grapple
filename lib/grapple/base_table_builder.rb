@@ -24,15 +24,21 @@ module Grapple
 			define_singleton_method(method) { settings }
 		end
 
-		attr_reader :columns, :records, :template, :params
+		attr_reader :columns, :records, :template, :params, :namespace
 
 		def initialize(template, columns, records, params = {}, *options)
 			@template = template
 			@columns = columns
 			@records = records
+			@options = default_options.merge(options[0] || {})
+			@namespace = @options[:namespace]
 			@params = params
-			@options = options[0] || {}
+			@params = @params[@namespace] || {} if @namespace
 			@helper_instances = {}
+		end
+		
+		def default_options
+			{ }
 		end
 
 		def before_table
@@ -41,6 +47,10 @@ module Grapple
 
 		def after_table
 			''
+		end
+		
+		def container(inner_html)
+			inner_html
 		end
 
 	protected
