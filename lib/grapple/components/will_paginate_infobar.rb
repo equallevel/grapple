@@ -2,8 +2,8 @@ module Grapple
 	module Components
 		class WillPaginateInfobar < HtmlComponent
 
-			setting :message, "Displaying %d - %d of %d items"
-			setting :no_results_message, "0 items"
+			setting :message, "Displaying %d - %d of %d results"
+			setting :no_results_message, "0 results"
 
 			def render
 				if records.total_entries > 0
