@@ -146,13 +146,18 @@ GrappleTable.prototype = {
 	},
 	
 	initSearchForm: function() {
-		var self = this;
-		this.header.find('form.search-form').each(function(i, elem) {
+		var self = this, selector = 'form.search-form';
+		this.header.find(selector).each(function(i, elem) {
 			$(elem).on('submit', function(event) {
 				// Don't submit the form
 				event.preventDefault();
 				self.loadTable($(elem).serialize());
 			});
+		});
+		
+		// Automatically submit the form when dropdowns are changed
+		this.header.find(selector + ' select').change(function() {
+			$(this).closest(selector).submit()
 		});
 	},
 	
