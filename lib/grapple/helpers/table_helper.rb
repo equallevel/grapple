@@ -7,12 +7,11 @@ module Grapple
 		
 			def table_for(columns, records, *args, &block)
 				options = args[0] || {}
+				# Don't render the container for AJAX requests by default
 				render_container = (options[:container].nil? ? !request.xhr? : options[:container]) rescue false
 				table_html_attributes = options[:html] || {}
 				options[:builder] = options[:builder] || @@builder
-				# params might not be defined (being called from a mailer)
-				# HACK: "defined? params" is returning method but when it gets called the method is not defined
-				request_params = request.params() rescue {}
+				request_params = options[:params] ? options[:params] : grapple_request_params
 				builder = options[:builder].new(self, columns, records, request_params, options)
 				output = capture(builder, &block)
 				table_html = (builder.before_table + builder.table(output, table_html_attributes) + builder.after_table)
@@ -21,6 +20,14 @@ module Grapple
 				else
 					table_html.html_safe
 				end
+			end
+			
+			def grapple_request_params
+				# params might not be defined (being called from a mailer)
+				# HACK: "defined? params" is returning method but when it gets called the method is not defined
+				params()
+			rescue
+				request.params() rescue {}
 			end
 
 			def grapple_container(*args, &block)
