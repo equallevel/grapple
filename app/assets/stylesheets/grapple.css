@@ -76,6 +76,18 @@
 	background-color: #eee;
 }
 
+.grapple thead .text-left {
+	text-align: left;
+}
+
+.grapple thead .text-center {
+	text-align: center;
+}
+
+.grapple thead .text-right {
+	text-align: right;
+}
+
 /* Sortable Column Headings */
 .grapple thead .sortable:hover {
 	background-color: #e0e0e0;
@@ -102,6 +114,7 @@
 /* Infobar */
 .grapple thead .infobar th{
 	border-bottom: 1px solid #aaa;
+	text-align: left;
 }
 
 /* Toolbar */
@@ -235,18 +248,4 @@
 	border: none;
 	padding: 1px;
 	margin: 0px;
-}
-
-
-/* TODO: Remove this stuff */
-.grapple tbody .red {
-	background-color: #ffdddd;
-}
-.grapple h2 {
-	font-size: 116%;
-	padding: 2px 0;
-}
-
-.grapple .not-ready {
-	visibility: hidden;
 }
