@@ -12,6 +12,7 @@ module Grapple
 		class WillPaginatePagination < HtmlComponent
 
 			setting :no_results_message, :no_search_results
+			setting :renderer, nil
 
 			def render(paginate_parameters = {})
 				if records.instance_of?(Array)
@@ -20,7 +21,7 @@ module Grapple
 					html = h(t(no_results_message))
 				else
 					paginate_parameters[:param_name] = url_parameter(:page) if builder.namespace
-					html = template.will_paginate(records, paginate_parameters) || '&nbsp;'
+					html = template.will_paginate(records, { renderer: renderer }.compact.merge(paginate_parameters)) || '&nbsp;'
 				end
 
 				builder.row "<td colspan=\"#{num_columns}\">#{html}</td>"
