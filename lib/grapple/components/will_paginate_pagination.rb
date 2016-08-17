@@ -21,7 +21,8 @@ module Grapple
 					html = h(t(no_results_message))
 				else
 					paginate_parameters[:param_name] = url_parameter(:page) if builder.namespace
-					html = template.will_paginate(records, { renderer: renderer }.compact.merge(paginate_parameters)) || '&nbsp;'
+					options = { renderer: renderer }.select { |_, value| !value.nil? }.merge(paginate_parameters)
+					html = template.will_paginate(records, options) || '&nbsp;'
 				end
 
 				builder.row "<td colspan=\"#{num_columns}\">#{html}</td>"
