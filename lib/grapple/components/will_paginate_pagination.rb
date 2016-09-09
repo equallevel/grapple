@@ -15,17 +15,19 @@ module Grapple
 			setting :renderer, nil
 
 			def render(paginate_parameters = {})
+				td_class = ""
 				if records.instance_of?(Array)
 					html = '&nbsp;'
 				elsif !params[:query].blank? and records.empty?
 					html = h(t(no_results_message))
+					td_class = "class='text-left'"
 				else
 					paginate_parameters[:param_name] = url_parameter(:page) if builder.namespace
 					options = { renderer: renderer }.select { |_, value| !value.nil? }.merge(paginate_parameters)
 					html = template.will_paginate(records, options) || '&nbsp;'
 				end
 
-				builder.row "<td colspan=\"#{num_columns}\">#{html}</td>"
+				builder.row "<td colspan=\"#{num_columns}\" #{td_class}>#{html}</td>"
 			end
 		
 		end
