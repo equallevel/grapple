@@ -24,7 +24,7 @@ module Grapple
 				
 				if column[:sort]
 					cell_classes << 'sortable'
-					if column[:sort] == params[:sort]
+					if column[:sort].to_s == params[:sort]
 						liner_classes << (params[:dir] == 'desc' ? 'sort-desc' : 'sort-asc')
 						cell_classes << 'sorted'
 					end
