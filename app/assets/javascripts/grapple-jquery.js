@@ -81,6 +81,7 @@ GrappleTable.prototype = {
 	 *
 	 */
 	loadTable: function(params) {
+		this.element.trigger('grapple:before_load');
 		this._showLoading();
 
 		if(this.history) {
@@ -96,7 +97,7 @@ GrappleTable.prototype = {
 		this.element.addClass(GrappleTable.CSS_LOADING);
 		
 		// Set the position of the loading overlay based on the size of the table
-		var loadingBar = this.element.find('.' + GrappleTable.CSS_LOADING_OVERLAY)
+		var loadingBar = this.element.find('.' + GrappleTable.CSS_LOADING_OVERLAY);
 		loadingBar.width(this.table.width());
 		var barHeight = loadingBar.height() || 20;
 		var top = (this.table.height() / 2) - barHeight;
@@ -125,6 +126,7 @@ GrappleTable.prototype = {
 				self.element.html(data);
 				self.init();
 				self._hideLoading();
+				self.element.trigger('grapple:after_load');
 			},
 			error: function(a, b, c) {
 				// TODO: handle loading errors
