@@ -12,10 +12,13 @@ module Grapple
 					else
 						label = t(action[:label])
 						url = action[:url]
-						html << template.send(link_to_helper, label, url, action)
+						html_attr = action.dup
+						html_attr.delete(:label)
+						html_attr.delete(:url)
+						html << template.send(link_to_helper, label, url, html_attr)
 					end
 				end			
-				content_tag(:div, html.html_safe, :class => 'actions')
+				content_tag(:div, html.html_safe, class: 'actions')
 			end
 
 		end
