@@ -113,7 +113,7 @@ GrappleTable.prototype = {
 		var self = this;
 		var url = this.url;
 		if(params.length) {
-			url += '?' + params;
+			url += (url.indexOf('?') == -1 ? '?' : '&') + params;
 		}
 		$.ajax(url, {
 			success: function(data) {
