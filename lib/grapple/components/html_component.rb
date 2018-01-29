@@ -16,7 +16,13 @@ module Grapple
 				if options[:sort] == params[:sort]
 					options[:dir] = (params[:dir] == 'desc') ? 'asc' : 'desc'
 				end
-				url_params = params.stringify_keys().merge(options.stringify_keys())
+				# Convert ActionController::Parameters to a Hash
+				p = if params.respond_to?(:to_unsafe_h)				
+					params.to_unsafe_h
+				else
+					params.to_h
+				end
+				url_params = p.stringify_keys().merge(options.stringify_keys())
 				if @builder.namespace
 					tmp = {}
 					url_params.each do |key, value|
