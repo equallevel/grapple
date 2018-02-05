@@ -19,6 +19,8 @@ module Grapple
 		autoload :SearchSubmit
 		autoload :WillPaginatePagination
 		autoload :WillPaginateInfobar
+		autoload :KaminariPagination
+		autoload :KaminariInfobar
 
 	end
 end
