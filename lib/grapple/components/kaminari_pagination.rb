@@ -28,7 +28,7 @@ module Grapple
 					rescue Exception => e
 						html = template.link_to_prev_page(records, "Previous Page") || ""
 						html += " " if html
-						html += template.link_to_next_page(records, "Next Page")
+						html += template.link_to_next_page(records, "Next Page") || ""
 					end
 				end
 
