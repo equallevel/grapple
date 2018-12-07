@@ -34,6 +34,10 @@ module Grapple
 					content = label
 				end
 				
+				if column[:class]
+					column[:class].split(" ").each{|c| cell_classes << c}
+				end
+				
 				cell_classes = ' class="' + cell_classes.join(' ') + '"'
 				title = column[:title] ? " title=\"#{h(column[:title])}\"" : ''
 				liner_classes = liner_classes.length ? " class=\"#{liner_classes.join(" ")}\"" : ''
