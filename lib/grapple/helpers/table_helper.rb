@@ -5,6 +5,16 @@ module Grapple
 			@@builder = Grapple::DataGridBuilder
 			mattr_accessor :builder
 		
+			# Render a grapple table
+			# @param columns [Enumerable]
+			# @param records [Enumerable]
+			# @option args :container [Boolean]
+			#   If true the table will be rendered with a container div around it
+			# @option args :html [Hash]
+			#   HTML attributes for the `<table>` element
+			# @option args :builder [Grapple::BaseTableBuilder]
+			#   The table builder to use to render the table
+			# @option args :params 
 			def table_for(columns, records, *args, &block)
 				options = args[0] || {}
 				# Don't render the container for AJAX requests by default

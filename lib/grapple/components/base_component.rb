@@ -1,5 +1,7 @@
 module Grapple
 	module Components
+
+		# Base class for components
 		class BaseComponent
 			
 			cattr_accessor :default_settings
@@ -11,8 +13,12 @@ module Grapple
 				@@default_settings[self.name][name] = default
 			end
 			
-			attr_reader :columns, :records, :template, :params, :builder
-			
+			attr_reader :columns
+			attr_reader :records
+			attr_reader :template
+			attr_reader :params
+			attr_reader :builder
+
 			def initialize(columns, records, template, params, builder, settings = {})
 				@template = template
 				@columns = columns
@@ -23,7 +29,7 @@ module Grapple
 					self.send(:"#{name}=", value)
 				end
 			end
-			
+
 			def render(*options, &block)
 				raise StandardError.new("Component must override render method")
 			end
@@ -71,6 +77,7 @@ module Grapple
 				template.with_output_buffer(&block).html_safe
 			end
 
+			# Renders a block if present, otherwise renders the components with options
 			def block_or_components(components, options, &block)
 				block.nil? ? render_components(components, options, &block).join : capture_block(&block)
 			end

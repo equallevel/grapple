@@ -1,6 +1,7 @@
 module Grapple
 	module Components
 
+		# thead element for tables
 		class HtmlHeader < HtmlComponent
 			
 			setting :components, []

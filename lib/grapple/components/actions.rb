@@ -1,5 +1,22 @@
 module Grapple
 	module Components
+
+		# Render links that apply to the table
+		# @example
+		#  <%
+		#    actions = [
+		#      { label: :new_user, url: new_user_path },
+		#      { label: :export_users, url: export_users_path }
+		#    ]
+		#  %>
+		#  <%= table_for(columns, @users) do |t| %>
+		#    <%= t.header do %>
+		#      <%= t.toolbar do %>
+		#        <%= t.actions actions %>
+		#      <% end %>
+		#		   <%= t.column_headings %>
+		#	   <% end %>
+		#  <% end %>
 		class Actions < HtmlComponent
 
 			setting :link_to_helper, :link_to

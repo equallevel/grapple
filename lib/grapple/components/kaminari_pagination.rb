@@ -1,9 +1,9 @@
 module Grapple
 	module Components
-		# Generates paging links using will_paginate.
+		# Generates paging links using Kaminari.
 		#
 		# @example 
-		#   <%= table_for(columns, Post.paginate(page: 2)) do |t| %>
+		#   <%= table_for(columns, Post.page(2)) do |t| %>
 		#     <%= t.footer do %>
 		#       <%= t.pagination %>
 		#     <% end %>
