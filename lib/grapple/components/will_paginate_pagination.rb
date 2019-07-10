@@ -16,9 +16,10 @@ module Grapple
 
 			def render(paginate_parameters = {})
 				td_class = ""
+
 				if records.instance_of?(Array)
 					html = '&nbsp;'
-				elsif !params[:query].blank? and records.empty?
+				elsif params.has_key?(:query) && records.empty?
 					html = h(t(no_results_message))
 					td_class = "class='text-left'"
 				else
