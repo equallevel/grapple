@@ -9,11 +9,11 @@ describe 'Ajax Data Grid Builder' do
 	end
 	
 	it "container_attributes should be correct" do
-		attr = Grapple::AjaxDataGridBuilder.container_attributes(self, { :id => 'my_table' })
+		builder = Grapple::AjaxDataGridBuilder.new(self, [], [], {}, id: 'my_table')
+		attr = builder.container_attributes()
 		expect(attr[:id]).to eq "my_table"
 		expect(attr[:class]).to include("grapple")
 		expect(attr[:data]['grapple-ajax-url']).to eq '/mock/path'
-		puts attr
 	end
 
 end

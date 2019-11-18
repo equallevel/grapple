@@ -9,16 +9,15 @@ describe 'Base Table Builder' do
 	end
 
 	it "container_attributes should be correct" do
-		attr = Grapple::HtmlTableBuilder.container_attributes(self, { :id => 'my_table' })
+		builder = Grapple::HtmlTableBuilder.new(self, users_columns, users_records, {}, id: 'my_table')
+		attr = builder.container_attributes()
 		expect(attr[:class]).to include("grapple")
 	end
 
 	it "table should be correct" do
 		builder = Grapple::HtmlTableBuilder.new(self, users_columns, users_records, {})
 
-		html = builder.table("<tr><td>TEST</td></tr>")
-
-		#puts html
+		html = builder.table("<tr><td>TEST</td></tr>".html_safe)
 
 		expect(html).to have_tag('table') do
 			with_tag("tr", count: 1) do 

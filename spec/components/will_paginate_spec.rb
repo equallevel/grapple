@@ -20,14 +20,9 @@ describe 'will_paginate' do
 	it "should be valid" do
 		records = User.all.paginate({ page: 1, per_page: 3 })
 		builder = Grapple::DataGridBuilder.new(self, columns, records, {})
-		puts builder.infobar()
-		puts builder.pagination()
 
 		records = User.where('id < 0').paginate({ page: 1, per_page: 3 })
-		builder = Grapple::DataGridBuilder.new(self, columns, records, {:query => 'test'})
-		puts builder.infobar()
-		puts builder.pagination()
-		
+		builder = Grapple::DataGridBuilder.new(self, columns, records, {:query => 'test'})	
 	end
 
 end
