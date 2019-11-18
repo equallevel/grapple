@@ -18,13 +18,13 @@ Gem::Specification.new do |s|
   
 	s.required_ruby_version = '>= 1.9.3'
 
-	s.add_dependency(%q<actionpack>, [">= 4.2.11"])
-	s.add_dependency(%q<activesupport>, [">= 4.2.11"])
+	s.add_dependency(%q<actionpack>, [">= 4.2.11.1"])
+	s.add_dependency(%q<activesupport>, [">= 4.2.11.1"])
 
 	s.add_development_dependency(%q<rspec-rails>, ["~> 3.0"])
 	s.add_development_dependency(%q<rspec-html-matchers>, ["~> 0.7.0"])
 	s.add_development_dependency(%q<rake>)
-	s.add_development_dependency(%q<activemodel>, [">= 4.2.11"])
-	s.add_development_dependency(%q<activerecord>, [">= 4.2.11"])
+	s.add_development_dependency(%q<activemodel>, [">= 4.2.11.1"])
+	s.add_development_dependency(%q<activerecord>, [">= 4.2.11.1"])
 	s.add_development_dependency(%q<will_paginate>)
 end
