@@ -1,9 +1,9 @@
 PATH
   remote: .
   specs:
-    grapple (0.1.8)
-      actionpack (>= 3.2.13)
-      activesupport (>= 3.2.13)
+    grapple (0.2.0)
+      actionpack (>= 4.2.11)
+      activesupport (>= 4.2.11)
 
 GEM
   remote: https://rubygems.org/
@@ -98,8 +98,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activemodel (>= 3.2.13)
-  activerecord (>= 3.2.13)
+  activemodel (>= 4.2.11)
+  activerecord (>= 4.2.11)
   grapple!
   rake
   rspec-html-matchers (~> 0.7.0)
@@ -108,4 +108,4 @@ DEPENDENCIES
   will_paginate
 
 BUNDLED WITH
-   1.12.5
+   1.16.3
