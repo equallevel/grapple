@@ -2,8 +2,8 @@ PATH
   remote: .
   specs:
     grapple (0.2.0)
-      actionpack (>= 4.2.11.1)
-      activesupport (>= 4.2.11.1)
+      actionpack (>= 4.2.11)
+      activesupport (>= 4.2.11)
 
 GEM
   remote: https://rubygems.org/
@@ -48,7 +48,7 @@ GEM
     minitest (5.11.3)
     nokogiri (1.10.5)
       mini_portile2 (~> 2.4.0)
-    rack (2.0.4)
+    rack (2.0.7)
     rack-test (0.8.2)
       rack (>= 1.0, < 3)
     rails-dom-testing (2.0.3)
@@ -98,8 +98,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activemodel (>= 4.2.11.1)
-  activerecord (>= 4.2.11.1)
+  activemodel (>= 4.2.11)
+  activerecord (>= 4.2.11)
   grapple!
   rake
   rspec-html-matchers (~> 0.7.0)
