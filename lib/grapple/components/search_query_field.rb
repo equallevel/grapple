@@ -9,7 +9,7 @@ module Grapple
 				template.text_field_tag(
 					search_query_param.to_s, 
 					params[search_query_param.to_sym], 
-					{ :class => search_query_field_class, placeholder: "Search" }
+					{ class: search_query_field_class, placeholder: I18n.translate(:search) }
 				)
 			end
 

@@ -1,2 +1,5 @@
 en:
+  displaying_x_y_of_z_results: "Displaying %{x} - %{y} of %{z} results"
   no_search_results: "We're sorry. No results were found."
+  search: "Search"
+  zero_results: "0 results"
