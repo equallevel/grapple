@@ -1,8 +1,5 @@
 (function(Grapple, $) {
 	'use strict';
-
-var urlQuery = Grapple.Util.urlQuery, 
-	parseUrlQuery = Grapple.Util.parseUrlQuery;
 	
 var overrideLink = function(clickable, anchor, callback) {
 	var href = $(anchor).attr('href');
@@ -15,8 +12,8 @@ var overrideLink = function(clickable, anchor, callback) {
 /**
  * Creates a new instance of the Grapple AJAX widget.
  *
- * @param {String} Selector for the table container element.
- * @param {Object} Hash of options for the table (url, namespace, history)
+ * @param {String} element - Selector for the table container element.
+ * @param {Object} options - Hash of options for the table (url, namespace, history)
  */
 var GrappleTable = function(element, options) {
 	options = options || {};
@@ -44,7 +41,7 @@ GrappleTable.NON_TABLE_RESPONSE = '<!DOCTYPE html>';
 GrappleTable.prototype = {
 	
 	/**
-	 *
+	 * Initialize the grapple table
 	 */
 	init: function() {
 		var self = this;
@@ -78,7 +75,10 @@ GrappleTable.prototype = {
 	},
 	
 	/**
-	 *
+	 * Load the table contents
+	 * @param {String} params - Query string of parameters to load the table with
+	 * @fires Grapple#grapple:before_load
+	 * @fires Grapple#grapple:after_load
 	 */
 	loadTable: function(params) {
 		this.element.trigger('grapple:before_load');
@@ -117,7 +117,7 @@ GrappleTable.prototype = {
 		}
 		$.ajax(url, {
 			success: function(data) {
-				// HACK
+				// HACK: handle full page responses
 				var nonTableKeyIndex = data.indexOf(GrappleTable.NON_TABLE_RESPONSE);
 				if(nonTableKeyIndex > -1 && nonTableKeyIndex < 100) {
 					data = "Failed to load table";
