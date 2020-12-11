@@ -21,14 +21,12 @@ var GrappleTable = function(element, options) {
 	this.url = options.url || this.element.data('grapple-ajax-url');
 	this.namespace = options.namespace || this.element.data('grapple-ajax-namespace') || null;
 	this.currentParams = options.params || '';
+	this.plugins = {};
 	if(typeof options.history !== 'undefined' && options.history !== true) {
-		this.history = options.history;
+		this.plugins.history = options.history;
 	}
 	else if(this.element.data('grapple-ajax-history') == 1 || options.history === true) {
-		this.history = new Grapple.History(this.namespace);
-	}
-	else {
-		this.history = null;
+		this.plugins.history = new Grapple.History(this);
 	}
 	this.init();
 };
@@ -53,25 +51,18 @@ GrappleTable.prototype = {
 		self.initSorting();
 		self.initSearchForm();
 		self.initPagination();
-		self.initHistory();
+		self.initPlugins();
 		
 		self.element.removeClass(GrappleTable.CSS_AJAX_LOADING);
 	},
 
-	initHistory: function() {
-		if(this.history) {
-			var self = this;
-			this.history.unsubscribe();
-			this.history = new Grapple.History(this.namespace);
-			this.history.subscribe(function(params) {
-				self.onHistoryChange(params);
-			});
+	/**
+	 * Initialize plugins
+	 */
+	initPlugins: function() {
+		for(var name in this.plugins) {
+			this.plugins[name].init();
 		}
-	},
-	
-	onHistoryChange: function(params) {
-		this._showLoading();
-		this._updateTable($.param(params));
 	},
 	
 	/**
@@ -81,14 +72,8 @@ GrappleTable.prototype = {
 	 * @fires Grapple#grapple:after_load
 	 */
 	loadTable: function(params) {
-		this.element.trigger('grapple:before_load');
+		this.element.trigger('grapple:before_load', params);
 		this._showLoading();
-
-		if(this.history) {
-			this.history.unsubscribe();
-			this.history.add(params);
-		}
-		
 		this._updateTable(params);
 	},
 	

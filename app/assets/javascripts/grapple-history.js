@@ -4,25 +4,62 @@
 var urlQuery = Grapple.Util.urlQuery, 
 	parseUrlQuery = Grapple.Util.parseUrlQuery;
 
-var GrappleHistory = function(namespace) {
-	this.namespace = namespace;
-	if(History.init) {
-		// https://github.com/browserstate/history.js/
-		this.api = History;
+// History.js for backwards compatibility with older browsers
+// https://github.com/browserstate/history.js/
+var LegacyHistory = function() {
+	var api = History;
 		
-		// Initialization of history.js can be delayed
-		// if it was do it now
-		if(this.api.options && this.api.options.delayInit) {
-			this.api.options.delayInit = false;
-			this.api.init();
+	// Initialization of history.js can be delayed
+	// if it was do it now
+	if(api.options && api.options.delayInit) {
+		api.options.delayInit = false;
+		api.init();
+	}
+	this.api = api;
+};
+
+LegacyHistory.prototype = {
+	push: function(params) {
+		return this.api.pushState(null, document.title, '?' + params);
+	},
+	get: function() {
+		return urlQuery(this.api.getState().url);
+	},
+	bind: function(callback) {
+		$(window).bind('statechange', callback);
+	},
+	unbind: function(callback) {
+		$(window).unbind('statechange', callback);
+	}
+};
+
+// Native Browser History API
+var ModernHistory = function() {
+
+};
+
+ModernHistory.prototype = {
+	push: function(params) {
+		if(window.history && window.history.pushState) {
+			return window.history.pushState(params, document.title, '?' + params);
 		}
+	},
+	get: function() {
+		if(window.history) {
+			return window.history.state || urlQuery(document.location.toString());
+		}
+	},
+	bind: function(callback) {
+		$(window).bind('popstate', callback);
+	},
+	unbind: function(callback) {
+		$(window).unbind('popstate', callback);
 	}
-	else {
-		// TODO: support native history api
-		this.api = window.history;
-	}
-	this.api = History;
-	this.changeCallback = null;
+};
+
+var GrappleHistory = function(grappleTable) {
+	this.grappleTable = grappleTable;
+	this._historyChangeCallback = null;
 };
 
 // Don't clutter the url with rails form parameters
@@ -30,10 +67,20 @@ GrappleHistory.IGNORE_PARAMS = { 'utf8': true, 'authenticity_token': true };
 
 GrappleHistory.prototype = {
 
-	add: function(params) {
-		var namespace = this.namespace;
-		var state = this.api.getState();
-		var historyParams = parseUrlQuery(urlQuery(state.url));
+	init: function() {
+		// Use the History.js wrapper if History.js has been loaded
+		this.api = typeof History !== 'undefined' && History.init ? new LegacyHistory() : new ModernHistory();
+		this._subscribeToTableChange();
+		this._subscribeToHistoryChange();
+	},
+
+	/**
+	 * Add an entry to the history
+	 * @param {String} params 
+	 */
+	_addHistoryEntry: function(params) {
+		var namespace = this.grappleTable.namespace;
+		var historyParams = parseUrlQuery(this.api.get());
 		var newParams = parseUrlQuery(params);
 
 		// Remove any parameters from the current state 
@@ -57,14 +104,45 @@ GrappleHistory.prototype = {
 			historyParams[x] = newParams[x];
 		}
 		
-		this.api.pushState(null, document.title, '?' + $.param(historyParams));
+		this.api.push($.param(historyParams));
 	},
 	
-	subscribe: function(callback) {
-		var api = this.api, namespace = this.namespace;
-		this.changeCallback = function(event) {
-			var state = api.getState();
-			var params = parseUrlQuery(urlQuery(state.url));
+	/**
+	 * Listen for changes to the table to add them to the history
+	 */
+	_subscribeToTableChange: function() {
+		var self = this;
+		this._beforeLoadCallback = function(e, params) {
+			self._unsubscribeFromTableChange();
+			self._unsubscribeFromHistoryChange();
+			// Don't add params to history if this was triggered by history change
+			if(self._ignoreNextLoad) {
+				self._ignoreNextLoad = false;
+			}
+			else {
+				self._addHistoryEntry(params);
+			}
+		};
+		this.grappleTable.element.on('grapple:before_load', this._beforeLoadCallback);
+	},
+
+	/**
+	 * Stop listening for changes to the table
+	 */
+	_unsubscribeFromTableChange: function() {
+		if(this._beforeLoadCallback) {
+			this.grappleTable.element.unbind('grapple:before_load', this._beforeLoadCallback);
+			this._beforeLoadCallback = null;
+		}
+	},
+
+	/**
+	 * Listen for changes to the history (back button clicks)
+	 */
+	_subscribeToHistoryChange: function() {
+		var api = this.api, namespace = this.grappleTable.namespace, self = this;
+		this._historyChangeCallback = function(event) {
+			var params = parseUrlQuery(api.get());
 			// Only include the parameters for this namespace
 			if(namespace) {
 				var r = new RegExp('^' + namespace + '\\[([^\\]]+)\\]$')
@@ -74,15 +152,19 @@ GrappleHistory.prototype = {
 					}
 				}
 			}
-			callback(params);
+			self._ignoreNextLoad = true;
+			self.grappleTable.loadTable($.param(params));
 		};
-		$(window).bind('statechange', this.changeCallback);
+		this.api.bind(this._historyChangeCallback);
 	},
 	
-	unsubscribe: function() {
-		if(this.changeCallback) {
-			$(window).unbind('statechange', this.changeCallback);
-			this.changeCallback = null;
+	/**
+	 * Stop listening for history changes
+	 */
+	_unsubscribeFromHistoryChange: function() {
+		if(this._historyChangeCallback) {
+			this.api.unbind(this._historyChangeCallback);
+			this._historyChangeCallback = null;
 		}
 	}
 	

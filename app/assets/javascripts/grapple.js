@@ -1,9 +1,6 @@
 (function(globals) {
 	'use strict';
 
-// Namespace
-var Grapple = {};
-
 var decodeParam = function(str) { 
 	return decodeURIComponent(str.replace(/\+/g, " "));
 };
