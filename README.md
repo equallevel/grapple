@@ -189,7 +189,7 @@ Render the table using `table_for` in `app/views/posts/_table.html.erb`
 
 ## History w/AJAX (back button)
 
-Requires: https://github.com/browserstate/history.js/
+Uses the native `window.history` API by default. If History.js is present it will use that instead for compatibility with older browsers (https://github.com/browserstate/history.js/).
 
 ``` javascript
 // app/assets/javascripts/application.js
