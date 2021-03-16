@@ -28,7 +28,12 @@ var GrappleTable = function(element, options) {
 	else if(this.element.data('grapple-ajax-history') == 1 || options.history === true) {
 		this.plugins.history = new Grapple.History(this);
 	}
+
 	this.init();
+
+	if (this.element.data('init-params')) {
+		this.loadTable(this.element.data('init-params'))
+	}
 };
 
 GrappleTable.CSS_AJAX_LOADING = 'grapple-ajax-loading';
