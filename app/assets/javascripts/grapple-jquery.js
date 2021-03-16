@@ -31,8 +31,8 @@ var GrappleTable = function(element, options) {
 
 	this.init();
 
-	if (this.element.data('init-params')) {
-		this.loadTable(this.element.data('init-params'))
+	if (this.element.data('grapple-ajax-init-params')) {
+		this.loadTable(this.element.data('grapple-ajax-init-params'))
 	}
 };
 
