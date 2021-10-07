@@ -19,9 +19,9 @@ module Grapple
 
 				if records.instance_of?(Array)
 					html = '&nbsp;'
-				elsif params.has_key?(:query) && records.empty?
+				elsif records.empty?
 					html = h(t(no_results_message))
-					td_class = "class='text-left'"
+					td_class = "class='no-results-message text-left'"
 				else
 					paginate_parameters[:param_name] = url_parameter(:page) if builder.namespace
 					options = { renderer: renderer }.select { |_, value| !value.nil? }.merge(paginate_parameters)
