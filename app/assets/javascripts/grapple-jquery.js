@@ -106,23 +106,32 @@ GrappleTable.prototype = {
 			url += (url.indexOf('?') == -1 ? '?' : '&') + params;
 		}
 		$.ajax(url, {
+			beforeSend: function() {
+				var event = jQuery.Event('grapple:before_ajax_send');
+				this.element.trigger(event, { url: url });
+				return !event.isDefaultPrevented();
+			},
 			success: function(data) {
 				// HACK: handle full page responses
 				var nonTableKeyIndex = data.indexOf(GrappleTable.NON_TABLE_RESPONSE);
 				if(nonTableKeyIndex > -1 && nonTableKeyIndex < 100) {
 					data = "Failed to load table";
 				}
-				self.element.addClass(GrappleTable.CSS_AJAX_LOADING);
-				self.element.html(data);
-				self.init();
-				self._hideLoading();
-				self.element.trigger('grapple:after_load');
+				self.loadHtml(data, url);
 			},
 			error: function(a, b, c) {
 				// TODO: handle loading errors
 				console.log("Failed to load table", a, b, c);
 			}
 		});
+	},
+	
+	loadHtml: function(html, url) {
+		this.element.addClass(GrappleTable.CSS_AJAX_LOADING);
+		this.element.html(html);
+		this.init();
+		this._hideLoading();
+		this.element.trigger('grapple:after_load', { url: url, html: html });
 	},
 	
 	initSorting: function() {
