@@ -108,7 +108,7 @@ GrappleTable.prototype = {
 		$.ajax(url, {
 			beforeSend: function() {
 				var event = jQuery.Event('grapple:before_ajax_send');
-				this.element.trigger(event, { url: url });
+				self.element.trigger(event, { url: url });
 				return !event.isDefaultPrevented();
 			},
 			success: function(data) {
