@@ -3,8 +3,11 @@
 	
 var overrideLink = function(clickable, anchor, callback) {
 	var href = $(anchor).attr('href');
-	$(anchor).attr('href', 'javascript:void(0)');
-	$(clickable).on('click', function() {
+	// use `#` + preventDefault() rather than `javascript:void(0)` so
+	// the anchor passes strict script-src without navigating on click.
+	$(anchor).attr('href', '#');
+	$(clickable).on('click', function(e) {
+		e.preventDefault();
 		callback(href ? href.split('?')[1] : '');
 	});
 };

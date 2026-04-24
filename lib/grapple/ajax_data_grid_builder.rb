@@ -37,7 +37,7 @@ module Grapple
 		def after_container
 			selector = '#' + @options[:id]
 			js = "$(#{selector.to_json}).grapple();"
-			return template.javascript_tag(js)
+			return template.javascript_tag(js, nonce: true)
 		end
 
 	end
