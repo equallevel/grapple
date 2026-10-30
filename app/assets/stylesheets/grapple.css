@@ -249,3 +249,1330 @@
 	padding: 1px;
 	margin: 0px;
 }
+
+
+/*************************
+ **   Redesign          **
+ *************************/
+
+/*
+	Mobile first: the base rules are the small-screen design and min-width: 761px layers on the
+	desktop values. Grapple sets every visual property itself, without Bootstrap's CSS or --bs-*
+	variables, so tables look the same in every app. The host app loads Public Sans, and menus
+	need Bootstrap 5 JS.
+
+	Nothing here sets display on elements that JavaScript shows or hides (.range-label,
+	.range-input, .more-filter-wrapper, #more-filters-row, the no-results spans, .ms-options,
+	.dropdown-menu, .loading-overlay), because a stylesheet display would fight jQuery's
+	.show() and .hide().
+*/
+
+/**************** Tokens ****************/
+
+.grapple {
+	--grapple-font-family: var(--ui-font-family, 'Public Sans', "Helvetica Neue", Helvetica, Arial, sans-serif);
+	--grapple-text: #292a33;
+	--grapple-text-muted: #3b414d;
+	--grapple-text-subtle: #6d717e;
+	--grapple-placeholder: #878e9b;
+	--grapple-control-border: #6d717e;
+	--grapple-divider: #caced8;
+	--grapple-header-bg: #f6f6f9;
+	--grapple-menu-border: #e5e7ec;
+	--grapple-menu-shadow: 0 0 4px rgba(41, 42, 51, 0.08);
+	--grapple-hover: #efecfe;
+	--grapple-selected: #dfdafd;
+	--grapple-focus: var(--ui-primary, #6145f7);
+	--grapple-checkbox: #6145f7;
+	--grapple-checkbox-border: #878e9b;
+	--grapple-theme: var(--ui-theme-color, #6145f7);
+	--grapple-theme-text: var(--ui-theme-text-color, var(--grapple-theme));
+	--grapple-theme-hover: color-mix(in srgb, var(--grapple-theme) 80%, #000);
+	--grapple-theme-pressed: color-mix(in srgb, var(--grapple-theme) 60%, #000);
+	--grapple-theme-soft-hover: color-mix(in srgb, var(--grapple-theme) 10%, #fff);
+	--grapple-theme-soft-pressed: color-mix(in srgb, var(--grapple-theme) 20%, #fff);
+	--grapple-disabled-bg: #ebedf1;
+	--grapple-disabled: #878e9b;
+	--grapple-danger: #d11053;
+	--grapple-danger-bg: #fff0f5;
+	--grapple-sort-unsorted: #afb5be;
+	--grapple-sort-active: #292a33;
+	--grapple-sort-inactive: #959ca8;
+	--grapple-radius-sm: 4px;
+	--grapple-radius-md: 6px;
+	--grapple-radius-lg: 8px;
+	--grapple-sticky-shadow: -2px 0 6px rgba(0, 0, 0, 0.15);
+	/* Toolbar controls: 32px below 761px, the search row grows to 40px above it */
+	--grapple-control-height: 32px;
+	--grapple-search-height: 32px;
+	--grapple-search-radius: var(--grapple-radius-sm);
+	--grapple-toolbar-row-break: 0px;
+	--grapple-cell-padding: 12px 16px;
+	--grapple-pinned-padding: 12px;
+	--grapple-cell-font-size: 12px;
+	--grapple-cell-line-height: 1.5;
+	--grapple-menu-toggle-size: 24px;
+
+	/* Lucide icons (lucide-rails 0.7.4), used as masks so they take the element's color */
+	--grapple-icon-chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+	--grapple-icon-chevron-left: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m15 18-6-6 6-6'/%3E%3C/svg%3E");
+	--grapple-icon-chevron-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
+	--grapple-icon-chevrons-up-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E");
+	--grapple-icon-search: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21 21-4.34-4.34'/%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3C/svg%3E");
+	--grapple-icon-x: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E");
+	--grapple-icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+	--grapple-icon-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23292a33' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+
+	font-family: var(--grapple-font-family);
+	color: var(--grapple-text);
+}
+
+.grapple-visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+
+/**************** Page blocks ****************/
+
+/* Open filter panels stay above the pinned column, even when .grapple-loading fades the tables */
+.grapple > .grapple-controls {
+	position: relative;
+	z-index: 2;
+}
+
+/* Toolbar, 8px, count, 8px, table, 16px, pagination */
+.grapple > .grapple-controls + .grapple-scroll {
+	margin-top: 8px;
+}
+
+.grapple > .grapple-pagination {
+	margin-top: 16px;
+}
+
+.grapple > .grapple-controls > table,
+.grapple > .grapple-controls > table > thead,
+.grapple > .grapple-controls > table > thead > tr,
+.grapple > .grapple-pagination > table,
+.grapple > .grapple-pagination > table > tfoot,
+.grapple > .grapple-pagination > table > tfoot > tr {
+	display: block;
+	width: 100%;
+	margin: 0;
+	border: 0;
+	background: none;
+}
+
+.grapple > .grapple-controls > table > thead > tr > th,
+.grapple > .grapple-pagination > table > tfoot > tr > td {
+	display: block;
+	padding: 0;
+	border: 0;
+	background: none;
+	text-align: left;
+	font-family: var(--grapple-font-family);
+	font-weight: 400;
+	color: var(--grapple-text);
+}
+
+.grapple > .grapple-controls > table > thead > tr.toolbar + tr.infobar {
+	margin-top: 8px;
+}
+
+/* Count */
+.grapple > .grapple-controls > table > thead > tr.infobar > th {
+	font-size: 14px;
+	line-height: 22px;
+}
+
+
+/**************** Data table ****************/
+
+.grapple > .grapple-scroll {
+	overflow-x: auto;
+	overflow-y: hidden;
+	border: 1px solid var(--grapple-divider);
+	border-radius: var(--grapple-radius-lg);
+	background-color: #fff;
+}
+
+.grapple > .grapple-scroll > table {
+	width: 100%;
+	margin: 0;
+	border: 0;
+	border-collapse: separate;
+	border-spacing: 0;
+	font-family: var(--grapple-font-family);
+	font-size: var(--grapple-cell-font-size);
+	line-height: var(--grapple-cell-line-height);
+	color: var(--grapple-text);
+}
+
+/* Child combinators keep nested .inner-table cells untouched */
+.grapple > .grapple-scroll > table > thead > tr > th,
+.grapple > .grapple-scroll > table > tbody > tr > td,
+.grapple > .grapple-scroll > table > tfoot > tr > td {
+	box-sizing: border-box;
+	padding: var(--grapple-cell-padding);
+	border: 0;
+	border-bottom: 1px solid var(--grapple-divider);
+	font-size: var(--grapple-cell-font-size);
+	line-height: var(--grapple-cell-line-height);
+	color: var(--grapple-text);
+	vertical-align: middle;
+	/* Row state classes such as tr.red still color the cells */
+	background-color: inherit;
+}
+
+/* Explicit, so host rules that hide header rows on small screens don't apply */
+.grapple > .grapple-scroll > table > thead > tr {
+	display: table-row;
+}
+
+.grapple > .grapple-scroll > table > thead > tr > th {
+	font-weight: 600;
+	background-color: var(--grapple-header-bg);
+}
+
+.grapple > .grapple-scroll > table > tbody > tr > td,
+.grapple > .grapple-scroll > table > tfoot > tr > td {
+	font-weight: 400;
+}
+
+/* Zero specificity, so any row class that sets a background still wins */
+:where(.grapple > .grapple-scroll > table > tbody > tr) {
+	background-color: #fff;
+}
+
+/* No zebra striping; equal to the legacy rules above so later row classes (e.g. .red) still win */
+.grapple tbody .even,
+.grapple tbody .odd {
+	background-color: #fff;
+}
+
+.grapple > .grapple-scroll > table:not(:has(> tfoot > tr)) > tbody > tr:last-child > td,
+.grapple > .grapple-scroll > table > tfoot > tr:last-child > td {
+	border-bottom: 0;
+}
+
+.grapple > .grapple-scroll > table > tbody > tr > td a:not(.dropdown-item, .btn) {
+	color: var(--grapple-text);
+	text-decoration: underline;
+}
+
+/* Pinned first column; box-shadow, not filter, which would trap the fixed-position row menus */
+.grapple > .grapple-scroll > table > thead > tr > th:first-child,
+.grapple > .grapple-scroll > table > tbody > tr > td:first-child {
+	position: sticky;
+	left: 0;
+	z-index: 1;
+	padding: var(--grapple-pinned-padding);
+	box-shadow: var(--grapple-sticky-shadow);
+}
+
+/* Each pinned cell stacks on its own, so the one with an open row menu goes above the rest */
+.grapple > .grapple-scroll > table > tbody > tr > td:first-child:has(.dropdown-menu.show) {
+	z-index: 3;
+}
+
+/* Sort indicators: one Lucide chevrons-up-down mask, each half colored on its own */
+.grapple > .grapple-scroll > table > thead > tr > th.sortable > div {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	--grapple-sort-up: var(--grapple-sort-unsorted);
+	--grapple-sort-down: var(--grapple-sort-unsorted);
+}
+
+.grapple > .grapple-scroll > table > thead > tr > th.sortable > div::after {
+	content: '';
+	flex: none;
+	width: 18px;
+	height: 18px;
+	background: linear-gradient(var(--grapple-sort-up) 0 50%, var(--grapple-sort-down) 50% 100%);
+	-webkit-mask: var(--grapple-icon-chevrons-up-down) center / 18px 18px no-repeat;
+	mask: var(--grapple-icon-chevrons-up-down) center / 18px 18px no-repeat;
+}
+
+.grapple > .grapple-scroll > table > thead > tr > th.sortable > div.sort-asc {
+	--grapple-sort-up: var(--grapple-sort-active);
+	--grapple-sort-down: var(--grapple-sort-inactive);
+}
+
+.grapple > .grapple-scroll > table > thead > tr > th.sortable > div.sort-desc {
+	--grapple-sort-up: var(--grapple-sort-inactive);
+	--grapple-sort-down: var(--grapple-sort-active);
+}
+
+/* Replaces the legacy arrow images; no hover background */
+.grapple > .grapple-scroll > table > thead > tr > th.sortable > div.sort-asc,
+.grapple > .grapple-scroll > table > thead > tr > th.sortable > div.sort-desc {
+	background: none;
+}
+
+.grapple > .grapple-scroll > table > thead > tr > th.sortable:hover,
+.grapple > .grapple-scroll > table > thead > tr > th.sorted {
+	background-color: var(--grapple-header-bg);
+}
+
+.grapple > .grapple-scroll > table > thead > tr > th.sortable a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.grapple > .grapple-scroll > table > thead > tr > th.sortable a:focus-visible {
+	outline: 2px solid var(--grapple-focus);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
+/* No results */
+.grapple > .grapple-scroll > table > tfoot > tr > td.no-results-message {
+	height: 152px;
+	padding: 64px 16px 16px;
+	vertical-align: top;
+	text-align: center;
+	font-size: 16px;
+	line-height: 1.5;
+}
+
+
+/**************** Identifier cell and row pieces ****************/
+
+.grapple > .grapple-scroll > table > tbody > tr > td.grapple-identifier-cell {
+	padding: 12px;
+}
+
+.grapple .grapple-identifier {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+.grapple .grapple-identifier__link {
+	color: var(--grapple-text);
+	text-decoration: underline;
+}
+
+/* 4px after the link, against the 16px gap */
+.grapple .grapple-identifier__attachment {
+	display: inline-flex;
+	flex: none;
+	margin-left: -12px;
+	color: var(--grapple-text-subtle);
+}
+
+/* Header label lines up with the identifiers of rows without a checkbox */
+.grapple > .grapple-scroll > table > thead > tr > th.grapple-identifier-heading {
+	padding-left: calc(12px + var(--grapple-menu-toggle-size) + 16px);
+}
+
+.grapple .grapple-row-select {
+	display: inline-flex;
+	flex: none;
+}
+
+.grapple .grapple-row-select input[type="checkbox"] {
+	-webkit-appearance: none;
+	appearance: none;
+	box-sizing: border-box;
+	width: 24px;
+	height: 24px;
+	margin: 0;
+	padding: 2px;
+	border: 1px solid var(--grapple-checkbox-border);
+	border-radius: var(--grapple-radius-sm);
+	background: #fff center / 20px 20px no-repeat;
+	cursor: pointer;
+}
+
+.grapple .grapple-row-select input[type="checkbox"]:checked {
+	border-color: var(--grapple-checkbox);
+	background-color: var(--grapple-checkbox);
+	background-image: var(--grapple-icon-check);
+}
+
+.grapple .grapple-row-select input[type="checkbox"]:focus-visible {
+	outline: 2px solid var(--grapple-focus);
+	outline-offset: 2px;
+}
+
+.grapple .grapple-row-menu-spacer {
+	display: inline-block;
+	flex: none;
+	width: var(--grapple-menu-toggle-size);
+	height: var(--grapple-menu-toggle-size);
+}
+
+.grapple .grapple-row-menu {
+	position: relative;
+	flex: none;
+}
+
+.grapple .grapple-row-menu > .grapple-row-menu__toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	width: var(--grapple-menu-toggle-size);
+	height: var(--grapple-menu-toggle-size);
+	margin: 0;
+	padding: 0;
+	border: 1px solid var(--grapple-control-border);
+	border-radius: var(--grapple-radius-sm);
+	background-color: #fff;
+	color: var(--grapple-text);
+	cursor: pointer;
+}
+
+.grapple .grapple-row-menu > .grapple-row-menu__toggle:hover,
+.grapple .grapple-row-menu > .grapple-row-menu__toggle[aria-expanded="true"] {
+	background-color: var(--grapple-hover);
+}
+
+.grapple .grapple-row-menu > .grapple-row-menu__toggle:focus-visible {
+	outline: 2px solid var(--grapple-focus);
+	outline-offset: 2px;
+}
+
+.grapple .grapple-row-menu > .grapple-row-menu__toggle > svg {
+	width: 16px;
+	height: 16px;
+}
+
+/* Both menus size to their content; Bootstrap's .show class opens them */
+.grapple .grapple-row-menu > .dropdown-menu,
+.grapple .actions.dropdown > .dropdown-menu {
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	border: 1px solid var(--grapple-menu-border);
+	border-radius: var(--grapple-radius-sm);
+	background-color: #fff;
+	box-shadow: var(--grapple-menu-shadow);
+	list-style: none;
+}
+
+.grapple .grapple-row-menu > .dropdown-menu > li > .dropdown-item,
+.grapple .actions.dropdown > .dropdown-menu > li > .dropdown-item {
+	display: flex;
+	align-items: center;
+	box-sizing: border-box;
+	min-height: 34px;
+	padding: 4px 8px;
+	border: 0;
+	background-color: transparent;
+	font-family: var(--grapple-font-family);
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 22px;
+	color: var(--grapple-text);
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.grapple .grapple-row-menu > .dropdown-menu > li > .dropdown-item:is(:hover, :focus, :active),
+.grapple .actions.dropdown > .dropdown-menu > li > .dropdown-item:is(:hover, :focus, :active) {
+	background-color: var(--grapple-hover);
+	color: var(--grapple-text);
+}
+
+.grapple .grapple-row-menu > .dropdown-menu > li > .dropdown-item.grapple-menu-item--destructive {
+	color: var(--grapple-danger);
+}
+
+.grapple .grapple-row-menu > .dropdown-menu > li > .dropdown-item.grapple-menu-item--destructive:is(:hover, :focus, :active) {
+	background-color: var(--grapple-danger-bg);
+	color: var(--grapple-danger);
+}
+
+.grapple .grapple-row-menu > .dropdown-menu > li > .dropdown-item:focus-visible,
+.grapple .actions.dropdown > .dropdown-menu > li > .dropdown-item:focus-visible {
+	outline: 2px solid var(--grapple-focus);
+	outline-offset: -2px;
+}
+
+/* The Actions menu is larger than the 3-dot menu */
+.grapple .actions.dropdown > .dropdown-menu {
+	border-radius: var(--grapple-radius-md);
+}
+
+.grapple .actions.dropdown > .dropdown-menu > li > .dropdown-item {
+	min-height: 38px;
+	padding: 8px 10px;
+}
+
+
+/**************** Toolbar ****************/
+
+/*
+	Ids are written as [id="..."] so the :is() lists below keep class-level specificity.
+
+	The search form is display: contents, so its components and the Actions are all flex items
+	of the toolbar cell. grapple-jquery.js picks the layout: everything on one row, the filters
+	on their own row (--filters-below), or one filter per row (--filters-stacked). Without it the
+	toolbar wraps.
+*/
+.grapple > .grapple-controls > table > thead > tr.toolbar > th {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	column-gap: 8px;
+	row-gap: 8px;
+}
+
+.grapple > .grapple-controls tr.toolbar form.search-form {
+	display: contents;
+	float: none;
+	margin: 0;
+	padding: 0;
+}
+
+.grapple > .grapple-controls tr.toolbar form.search-form > .search-form-component {
+	flex: none;
+	width: auto;
+	margin: 0;
+}
+
+.grapple > .grapple-controls tr.toolbar form.search-form > .search-form-component:has(> .search-query),
+.grapple > .grapple-controls tr.toolbar form.search-form > .search-query {
+	order: 1;
+	/* A zero basis keeps the button and Actions on the search row at narrow widths */
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+.grapple > .grapple-controls tr.toolbar form.search-form > .search-form-component:has(> [id="advanced-search-submit"]),
+.grapple > .grapple-controls tr.toolbar form.search-form > input[type="submit"] {
+	order: 2;
+	/* Joined to the search field */
+	margin-left: -8px;
+}
+
+.grapple > .grapple-controls tr.toolbar form.search-form > .search-form-component {
+	order: 10;
+}
+
+.grapple > .grapple-controls tr.toolbar form.search-form > .search-form-component:has(> [id="more-dropdown"]) {
+	order: 11;
+}
+
+.grapple > .grapple-controls tr.toolbar form.search-form > .search-form-component:has(> .reset-button) {
+	order: 12;
+}
+
+.grapple > .grapple-controls tr.toolbar #more-filters-row {
+	order: 15;
+	flex: 1 0 100%;
+	margin: 0 0 -8px;
+}
+
+.grapple > .grapple-controls tr.toolbar > th > .actions {
+	order: 14;
+	flex: none;
+	height: auto;
+	margin-left: auto;
+	padding: 0;
+	float: none;
+}
+
+/* Filters below the search row */
+.grapple > .grapple-controls tr.toolbar:is(.grapple-toolbar--filters-below, .grapple-toolbar--filters-stacked) > th {
+	row-gap: 0;
+}
+
+.grapple > .grapple-controls tr.toolbar:is(.grapple-toolbar--filters-below, .grapple-toolbar--filters-stacked) > th > .actions {
+	order: 3;
+}
+
+.grapple > .grapple-controls tr.toolbar:is(.grapple-toolbar--filters-below, .grapple-toolbar--filters-stacked) > th::before {
+	content: '';
+	order: 4;
+	flex: 1 0 100%;
+	height: var(--grapple-toolbar-row-break);
+}
+
+.grapple > .grapple-controls tr.toolbar:is(.grapple-toolbar--filters-below, .grapple-toolbar--filters-stacked) form.search-form > .search-form-component:not(:has(> .search-query, > [id="advanced-search-submit"])),
+.grapple > .grapple-controls tr.toolbar:is(.grapple-toolbar--filters-below, .grapple-toolbar--filters-stacked) #more-filters-row {
+	margin-top: 8px;
+}
+
+/* One filter per row; added filters, then Clear Filters, last */
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked form.search-form > .search-form-component:not(:has(> .search-query, > [id="advanced-search-submit"])) {
+	flex: 1 0 100%;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked #more-filters-row {
+	order: 12;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked form.search-form > .search-form-component:has(> .reset-button) {
+	order: 13;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component :is(select, .ms-options-wrap, .ms-options-wrap > button, .input-group, [id="more-dropdown"], [id="more-dropdown"] > .dropdown-toggle, .reset-button, input.form-control):not(.input-group > *) {
+	width: 100%;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group > :last-child {
+	flex-grow: 1;
+}
+
+/* Added (More) filters; jQuery shows the row and each wrapper inline, so the wrappers float */
+.grapple > .grapple-controls tr.toolbar #more-filters-row > .more-filter-wrapper {
+	float: left;
+	margin: 0 8px 8px 0;
+}
+
+/* Still floated: the float is what makes jQuery's inline wrapper a block that takes a width */
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked #more-filters-row > .more-filter-wrapper {
+	width: 100%;
+	margin: 0 0 8px;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked #more-filters-row > .more-filter-wrapper > .input-group {
+	width: 100%;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked #more-filters-row {
+	min-width: 0;
+}
+
+/* Stacked range and date inputs share the row instead of keeping 98px each */
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group > :is(.range-input, .date-picker) {
+	flex: 1 1 0;
+	width: auto;
+	min-width: 0;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked #more-filters-row > .more-filter-wrapper > .input-group > .search-form-component {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.grapple > .grapple-controls tr.toolbar #more-filters-row::after {
+	content: '';
+	display: table;
+	clear: both;
+}
+
+/* Search field */
+.grapple > .grapple-controls tr.toolbar input.search-query {
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	max-width: none;
+	height: var(--grapple-search-height);
+	margin: 0;
+	padding: 0 10px;
+	border: 1px solid var(--grapple-control-border);
+	border-radius: var(--grapple-search-radius) 0 0 var(--grapple-search-radius);
+	background-color: #fff;
+	box-shadow: none;
+	font-family: var(--grapple-font-family);
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 22px;
+	color: var(--grapple-text);
+}
+
+.grapple > .grapple-controls tr.toolbar input.search-query::placeholder {
+	color: var(--grapple-placeholder);
+	opacity: 1;
+}
+
+.grapple > .grapple-controls tr.toolbar input.search-query:focus {
+	border-color: var(--grapple-control-border);
+	box-shadow: none;
+	outline: 2px solid var(--grapple-focus);
+	outline-offset: 2px;
+}
+
+/* Empty search (grapple-jquery.js) */
+.grapple > .grapple-controls tr.toolbar input.search-query.grapple-search-field--error {
+	border-color: var(--grapple-danger);
+}
+
+.grapple > .grapple-controls tr.toolbar .grapple-search-error {
+	margin-top: 2px;
+	font-family: var(--grapple-font-family);
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 22px;
+	color: var(--grapple-danger);
+	white-space: normal;
+}
+
+/* Search button: the theme-colored square with a search icon; its label is the accessible name */
+.grapple > .grapple-controls tr.toolbar :is([id="advanced-search-submit"], form.search-form > input[type="submit"]) {
+	display: block;
+	box-sizing: border-box;
+	width: 36px;
+	height: var(--grapple-search-height);
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	border: 0;
+	border-radius: 0 var(--grapple-search-radius) var(--grapple-search-radius) 0;
+	background: var(--grapple-theme) var(--grapple-icon-search) center / 20px 20px no-repeat;
+	box-shadow: none;
+	color: transparent;
+	font-size: 0;
+	text-indent: 100%;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.grapple > .grapple-controls tr.toolbar :is([id="advanced-search-submit"], form.search-form > input[type="submit"]):hover {
+	background-color: var(--grapple-theme-hover);
+}
+
+.grapple > .grapple-controls tr.toolbar :is([id="advanced-search-submit"], form.search-form > input[type="submit"]):active {
+	background-color: var(--grapple-theme-pressed);
+}
+
+.grapple > .grapple-controls tr.toolbar :is([id="advanced-search-submit"], form.search-form > input[type="submit"]):focus-visible {
+	outline: 2px solid var(--grapple-focus);
+	outline-offset: 2px;
+}
+
+/* Filter buttons: multi-selects, single selects, More Filters and the range/date groups */
+.grapple > .grapple-controls tr.toolbar .search-form-component :is(.ms-options-wrap > button, select, [id="more-dropdown"] > .dropdown-toggle, .input-group > .input-group-text, input.form-control:not(.search-query)) {
+	box-sizing: border-box;
+	height: var(--grapple-control-height);
+	min-height: 0;
+	margin: 0;
+	border: 1px solid var(--grapple-control-border);
+	border-radius: var(--grapple-radius-sm);
+	background-color: #fff;
+	box-shadow: none;
+	font-family: var(--grapple-font-family);
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 22px;
+	color: var(--grapple-text-muted);
+	text-align: left;
+}
+
+.grapple > .grapple-controls tr.toolbar .search-form-component :is(.ms-options-wrap > button, [id="more-dropdown"] > .dropdown-toggle) {
+	display: inline-flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 4px;
+	padding: 0 8px;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.grapple > .grapple-controls tr.toolbar .search-form-component [id="more-dropdown"] > .dropdown-toggle {
+	color: var(--grapple-text);
+}
+
+/* The plugin's and Bootstrap's carets become the Lucide chevron */
+.grapple > .grapple-controls tr.toolbar .search-form-component :is(.ms-options-wrap > button, [id="more-dropdown"] > .dropdown-toggle)::after {
+	content: '';
+	position: static;
+	flex: none;
+	width: 20px;
+	height: 20px;
+	margin: 0;
+	border: 0;
+	transform: none;
+	background-color: var(--grapple-text);
+	-webkit-mask: var(--grapple-icon-chevron-down) center / 20px 20px no-repeat;
+	mask: var(--grapple-icon-chevron-down) center / 20px 20px no-repeat;
+}
+
+.grapple > .grapple-controls tr.toolbar .search-form-component .ms-options-wrap > button > span {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.grapple > .grapple-controls tr.toolbar .search-form-component select {
+	-webkit-appearance: none;
+	appearance: none;
+	width: auto;
+	padding: 0 32px 0 8px;
+	background: #fff var(--grapple-icon-select-chevron) right 8px center / 20px 20px no-repeat;
+	cursor: pointer;
+}
+
+.grapple > .grapple-controls tr.toolbar .search-form-component input.form-control:not(.search-query) {
+	padding: 0 8px;
+}
+
+.grapple > .grapple-controls tr.toolbar .search-form-component input.form-control:not(.search-query)::placeholder {
+	color: var(--grapple-placeholder);
+	opacity: 1;
+}
+
+.grapple > .grapple-controls tr.toolbar .search-form-component :is(.ms-options-wrap > button, [id="more-dropdown"] > .dropdown-toggle):is(:hover, [aria-expanded="true"], .show),
+.grapple > .grapple-controls tr.toolbar .search-form-component .ms-options-wrap.ms-active > button,
+.grapple > .grapple-controls tr.toolbar .search-form-component select:hover {
+	background-color: var(--grapple-hover);
+	color: var(--grapple-text-muted);
+}
+
+.grapple > .grapple-controls tr.toolbar .search-form-component :is(.ms-options-wrap > button, select, [id="more-dropdown"] > .dropdown-toggle, input.form-control):focus-visible {
+	box-shadow: none;
+	outline: 2px solid var(--grapple-focus);
+	outline-offset: 2px;
+}
+
+/* Date and range groups: a label segment joined to its select and inputs */
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: stretch;
+	width: auto;
+}
+
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > * {
+	border-radius: 0;
+	margin: 0;
+}
+
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :not(:first-child) {
+	border-left: 0;
+}
+
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :first-child {
+	border-top-left-radius: var(--grapple-radius-sm);
+	border-bottom-left-radius: var(--grapple-radius-sm);
+}
+
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :last-child {
+	border-top-right-radius: var(--grapple-radius-sm);
+	border-bottom-right-radius: var(--grapple-radius-sm);
+}
+
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > .input-group-text {
+	display: flex;
+	align-items: center;
+	padding: 0 8px;
+	color: var(--grapple-text);
+	white-space: nowrap;
+}
+
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :is(.range-input, .date-picker) {
+	flex: 0 0 98px;
+	width: 98px;
+}
+
+/* From/To labels give way to placeholders once the inputs have them; screen readers keep them */
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > .range-label:has(+ .range-input[placeholder]) {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	border: 0;
+}
+
+/* Added filters: the filter's own control, joined to a remove (X) button */
+.grapple > .grapple-controls tr.toolbar .more-filter-wrapper > .input-group {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: stretch;
+	width: auto;
+}
+
+.grapple > .grapple-controls tr.toolbar .more-filter-wrapper > .input-group > .search-form-component :is(select, .ms-options-wrap > button, input.form-control, .input-group > :last-child) {
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
+
+.grapple > .grapple-controls tr.toolbar .more-filter-wrapper > .input-group > .remove-more-filter-wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	width: 32px;
+	height: var(--grapple-control-height);
+	margin: 0;
+	padding: 0;
+	border: 1px solid var(--grapple-control-border);
+	border-left: 0;
+	border-radius: 0 var(--grapple-radius-sm) var(--grapple-radius-sm) 0;
+	background-color: #fff;
+	cursor: pointer;
+}
+
+.grapple > .grapple-controls tr.toolbar .more-filter-wrapper > .input-group > .remove-more-filter-wrapper:hover {
+	background-color: var(--grapple-hover);
+}
+
+.grapple > .grapple-controls tr.toolbar .more-filter-wrapper .remove-more-filter > :is(.bi, .glyphicon) {
+	display: none;
+}
+
+.grapple > .grapple-controls tr.toolbar .more-filter-wrapper .remove-more-filter::before {
+	content: '';
+	display: block;
+	width: 16px;
+	height: 16px;
+	background-color: var(--grapple-text);
+	-webkit-mask: var(--grapple-icon-x) center / 16px 16px no-repeat;
+	mask: var(--grapple-icon-x) center / 16px 16px no-repeat;
+}
+
+/* Option panels: multi-selects and the More Filters menu */
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options,
+.grapple > .grapple-controls tr.toolbar [id="more-dropdown"] > .dropdown-menu {
+	box-sizing: border-box;
+	min-width: 100%;
+	margin-top: 4px;
+	padding: 0;
+	border: 1px solid var(--grapple-menu-border);
+	border-radius: var(--grapple-radius-sm);
+	background-color: #fff;
+	box-shadow: var(--grapple-menu-shadow);
+	font-family: var(--grapple-font-family);
+	font-size: 14px;
+	line-height: 22px;
+	color: var(--grapple-text);
+}
+
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul label,
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-selectall,
+.grapple > .grapple-controls tr.toolbar [id="more-dropdown"] > .dropdown-menu > li > .dropdown-item {
+	display: flex;
+	align-items: center;
+	box-sizing: border-box;
+	min-height: 34px;
+	margin: 0;
+	padding: 4px 8px;
+	border: 0;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 22px;
+	color: var(--grapple-text);
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+/* 20+ options get the shorter row */
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul:has(> li:nth-child(20)) label {
+	min-height: 32px;
+}
+
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul li:not(.optgroup):hover,
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-selectall:hover,
+.grapple > .grapple-controls tr.toolbar [id="more-dropdown"] > .dropdown-menu > li > .dropdown-item:is(:hover, :focus, :active) {
+	background-color: var(--grapple-hover);
+	color: var(--grapple-text);
+}
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap  .ms-options .ms-selectall  span {
+	margin-left: 8px !important;
+}
+
+
+/* Select All has no .selected class, so its checkbox marks the state */
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul li.selected:hover,
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-selectall:hover:has(> input[type="checkbox"]:checked) {
+	background-color: var(--grapple-selected);
+}
+
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options input[type="checkbox"],
+.grapple > .grapple-controls tr.toolbar [id="more-dropdown"] .more-checkbox {
+	-webkit-appearance: none;
+	appearance: none;
+	box-sizing: border-box;
+	flex: none;
+	width: 20px;
+	height: 20px;
+	border: 1px solid var(--grapple-control-border);
+	border-radius: 2px;
+	background: #fff center / 16px 16px no-repeat;
+}
+
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options input[type="checkbox"]:checked,
+.grapple > .grapple-controls tr.toolbar [id="more-dropdown"] .more-checkbox:checked {
+	border-color: var(--grapple-checkbox);
+	background-color: var(--grapple-checkbox);
+	background-image: var(--grapple-icon-check);
+}
+
+/*
+	equallevel_ui pins option labels to padding-left 28px with !important and floats the checkbox
+	over that padding at 8px, which leaves no room for the 8px gap. The checkbox goes back into the
+	row and pulls left over the padding: it still sits 8px in, and the text starts 8px after it.
+	Nested optgroup rows have 40px of padding: they pull further and keep equallevel_ui's extra
+	12px text indent.
+*/
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul label > input[type="checkbox"] {
+	position: static;
+	top: auto;
+	left: auto;
+	transform: none;
+	margin: 0 8px 0 -20px;
+}
+
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul > li.optgroup > ul > li > label > input[type="checkbox"] {
+	margin-left: -32px;
+	margin-right: 20px;
+}
+
+/* Native single-select panels, where the browser supports styling them */
+@supports (appearance: base-select) {
+	.grapple > .grapple-controls tr.toolbar .search-form-component select:not([multiple]),
+	.grapple > .grapple-controls tr.toolbar .search-form-component select:not([multiple])::picker(select) {
+		appearance: base-select;
+	}
+
+	.grapple > .grapple-controls tr.toolbar .search-form-component select:not([multiple])::picker-icon {
+		display: none;
+	}
+
+	.grapple > .grapple-controls tr.toolbar .search-form-component select:not([multiple])::picker(select) {
+		margin-top: 4px;
+		padding: 0;
+		border: 1px solid var(--grapple-menu-border);
+		border-radius: var(--grapple-radius-sm);
+		background-color: #fff;
+		box-shadow: var(--grapple-menu-shadow);
+	}
+
+	.grapple > .grapple-controls tr.toolbar .search-form-component select:not([multiple]) option {
+		box-sizing: border-box;
+		min-height: 34px;
+		padding: 4px 8px;
+		font-size: 14px;
+		line-height: 22px;
+		color: var(--grapple-text);
+	}
+
+	.grapple > .grapple-controls tr.toolbar .search-form-component select:not([multiple]) option:is(:hover, :checked) {
+		background-color: var(--grapple-hover);
+	}
+
+	.grapple > .grapple-controls tr.toolbar .search-form-component select:not([multiple]) option:checked:hover {
+		background-color: var(--grapple-selected);
+	}
+
+	.grapple > .grapple-controls tr.toolbar .search-form-component select:not([multiple]) option::checkmark {
+		display: none;
+	}
+}
+
+/* Clear Filters: a ghost button */
+.grapple > .grapple-controls tr.toolbar .search-form-component > .reset-button {
+	display: block;
+	box-sizing: border-box;
+	height: var(--grapple-control-height);
+	margin: 0;
+	padding: 0 8px;
+	border: 0;
+	border-radius: var(--grapple-radius-sm);
+	background-color: transparent;
+	box-shadow: none;
+	font-family: var(--grapple-font-family);
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 22px;
+	color: var(--grapple-text);
+	text-align: center;
+	cursor: pointer;
+}
+
+.grapple > .grapple-controls tr.toolbar .search-form-component > .reset-button:hover,
+.grapple > .grapple-controls tr.toolbar .search-form-component > .reset-button:active {
+	background-color: var(--grapple-theme-soft-hover);
+	color: var(--grapple-text);
+}
+
+.grapple > .grapple-controls tr.toolbar .search-form-component > .reset-button:focus-visible {
+	box-shadow: none;
+	outline: 2px solid var(--grapple-focus);
+	outline-offset: 2px;
+}
+
+/* Actions: the dropdown trigger, or a lone action */
+.grapple > .grapple-controls tr.toolbar > th > .actions > .btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	box-sizing: border-box;
+	height: var(--grapple-control-height);
+	margin: 0;
+	padding: 0 8px;
+	border: 1px solid var(--grapple-theme);
+	border-radius: var(--grapple-radius-sm);
+	box-shadow: none;
+	font-family: var(--grapple-font-family);
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 22px;
+	text-decoration: none;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.grapple > .grapple-controls tr.toolbar > th > .actions > .btn + .btn {
+	margin-left: 8px;
+}
+
+.grapple > .grapple-controls tr.toolbar > th > .actions > .btn:not(.btn-secondary) {
+	background-color: var(--grapple-theme);
+	color: #fff;
+}
+
+.grapple > .grapple-controls tr.toolbar > th > .actions > .btn:not(.btn-secondary):is(:hover, :focus-visible) {
+	border-color: var(--grapple-theme-hover);
+	background-color: var(--grapple-theme-hover);
+	color: #fff;
+}
+
+.grapple > .grapple-controls tr.toolbar > th > .actions > .btn:not(.btn-secondary):is(:active, .show) {
+	border-color: var(--grapple-theme-pressed);
+	background-color: var(--grapple-theme-pressed);
+	color: #fff;
+}
+
+.grapple > .grapple-controls tr.toolbar > th > .actions > .btn.btn-secondary {
+	background-color: #fff;
+	color: var(--grapple-theme-text);
+}
+
+.grapple > .grapple-controls tr.toolbar > th > .actions > .btn.btn-secondary:is(:hover, :focus-visible) {
+	background-color: var(--grapple-theme-soft-hover);
+	color: var(--grapple-theme-text);
+}
+
+.grapple > .grapple-controls tr.toolbar > th > .actions > .btn:focus-visible {
+	outline: 2px solid var(--grapple-focus);
+	outline-offset: 2px;
+}
+
+.grapple > .grapple-controls tr.toolbar > th > .actions > .dropdown-toggle::after {
+	content: '';
+	flex: none;
+	width: 20px;
+	height: 20px;
+	margin: 0;
+	border: 0;
+	background-color: currentColor;
+	-webkit-mask: var(--grapple-icon-chevron-down) center / 100% 100% no-repeat;
+	mask: var(--grapple-icon-chevron-down) center / 100% 100% no-repeat;
+}
+
+
+/**************** Pagination ****************/
+
+.grapple > .grapple-pagination .grapple-pagination__pages--full {
+	display: none;
+}
+
+/* Outranks equallevel_ui's centered .grapple.bootstrap-5 tfoot tr .pagination */
+.grapple > .grapple-pagination .grapple-pagination__pages .pagination {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	width: auto;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	text-align: left;
+}
+
+/* Page buttons from Bootstrap-style renderers (li > a/span) and will_paginate's default (a/em/span) */
+.grapple > .grapple-pagination .pagination > li {
+	display: flex;
+	margin: 0;
+}
+
+.grapple > .grapple-pagination .pagination > li > :is(a, span),
+.grapple > .grapple-pagination .pagination > :is(a, em, span) {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	min-width: 40px;
+	height: 40px;
+	margin: 0 0 0 -1px;
+	padding: 8px 10px;
+	border: 1px solid var(--grapple-theme);
+	border-radius: 0;
+	background-color: #fff;
+	box-shadow: none;
+	font-family: var(--grapple-font-family);
+	font-size: 16px;
+	font-style: normal;
+	font-weight: 600;
+	line-height: 1.5;
+	color: var(--grapple-theme-text);
+	text-decoration: none;
+}
+
+.grapple > .grapple-pagination .pagination > li:first-child > :is(a, span),
+.grapple > .grapple-pagination .pagination > :is(a, em, span):first-child {
+	margin-left: 0;
+	border-top-left-radius: var(--grapple-radius-md);
+	border-bottom-left-radius: var(--grapple-radius-md);
+}
+
+.grapple > .grapple-pagination .pagination > li:last-child > :is(a, span),
+.grapple > .grapple-pagination .pagination > :is(a, em, span):last-child {
+	border-top-right-radius: var(--grapple-radius-md);
+	border-bottom-right-radius: var(--grapple-radius-md);
+}
+
+.grapple > .grapple-pagination .pagination > li > a:hover,
+.grapple > .grapple-pagination .pagination > a:hover {
+	background-color: var(--grapple-theme-soft-hover);
+	color: var(--grapple-theme-text);
+}
+
+.grapple > .grapple-pagination .pagination > li > a:focus-visible,
+.grapple > .grapple-pagination .pagination > a:focus-visible {
+	position: relative;
+	z-index: 1;
+	box-shadow: none;
+	outline: 2px solid var(--grapple-focus);
+	outline-offset: 2px;
+}
+
+.grapple > .grapple-pagination .pagination > li.active > :is(a, span),
+.grapple > .grapple-pagination .pagination > em.current {
+	background-color: var(--grapple-theme);
+	color: #fff;
+}
+
+/* Disabled Previous/Next; the gap ("…") keeps the default look */
+.grapple > .grapple-pagination .pagination > li.disabled:is(.prev, .next) > :is(a, span),
+.grapple > .grapple-pagination .pagination > span.disabled {
+	display: inline-flex;
+	position: relative;
+	z-index: 1;
+	border-color: var(--grapple-disabled);
+	background-color: var(--grapple-disabled-bg);
+	color: var(--grapple-disabled);
+}
+
+/* Previous/Next as chevron buttons below 761px; the label stays for screen readers */
+.grapple > .grapple-pagination .pagination > li:is(.prev, .next) > :is(a, span),
+.grapple > .grapple-pagination .pagination > :is(.previous_page, .next_page) {
+	width: 40px;
+	padding: 8px;
+	overflow: hidden;
+	font-size: 0;
+}
+
+.grapple > .grapple-pagination .pagination > li:is(.prev, .next) > :is(a, span)::before,
+.grapple > .grapple-pagination .pagination > :is(.previous_page, .next_page)::before {
+	content: '';
+	flex: none;
+	width: 24px;
+	height: 24px;
+	background-color: currentColor;
+	-webkit-mask: var(--grapple-icon-chevron-left) center / 24px 24px no-repeat;
+	mask: var(--grapple-icon-chevron-left) center / 24px 24px no-repeat;
+}
+
+.grapple > .grapple-pagination .pagination > li.next > :is(a, span)::before,
+.grapple > .grapple-pagination .pagination > .next_page::before {
+	-webkit-mask-image: var(--grapple-icon-chevron-right);
+	mask-image: var(--grapple-icon-chevron-right);
+}
+
+
+/**************** Desktop (761px and up) ****************/
+
+@media (min-width: 761px) {
+	.grapple {
+		--grapple-search-height: 40px;
+		--grapple-search-radius: var(--grapple-radius-md);
+		--grapple-toolbar-row-break: 8px;
+		--grapple-cell-padding: 16px 12px;
+		--grapple-pinned-padding: 16px;
+		--grapple-cell-font-size: 14px;
+		--grapple-cell-line-height: 22px;
+		--grapple-menu-toggle-size: 26px;
+	}
+
+	/* 16px at the table edges, 24px between columns */
+	.grapple > .grapple-scroll > table > thead > tr > th:first-child,
+	.grapple > .grapple-scroll > table > tbody > tr > td:first-child {
+		padding-left: 16px;
+	}
+
+	.grapple > .grapple-scroll > table > thead > tr > th:last-child,
+	.grapple > .grapple-scroll > table > tbody > tr > td:last-child {
+		padding-right: 16px;
+	}
+
+	.grapple > .grapple-scroll > table > tbody > tr > td.grapple-identifier-cell {
+		padding: 8px 16px;
+	}
+
+	.grapple > .grapple-scroll > table > thead > tr > th.grapple-identifier-heading {
+		padding-left: calc(16px + var(--grapple-menu-toggle-size) + 16px);
+	}
+
+	/* Search row: a 504px field and 40px controls */
+	.grapple > .grapple-controls tr.toolbar form.search-form > .search-form-component:has(> .search-query),
+	.grapple > .grapple-controls tr.toolbar form.search-form > .search-query {
+		flex: 0 1 504px;
+	}
+
+	.grapple > .grapple-controls tr.toolbar input.search-query {
+		font-size: 16px;
+		line-height: 1.5;
+	}
+
+	.grapple > .grapple-controls tr.toolbar :is([id="advanced-search-submit"], form.search-form > input[type="submit"]) {
+		width: 40px;
+	}
+
+	.grapple > .grapple-controls tr.toolbar > th > .actions > .btn {
+		gap: 8px;
+		height: 40px;
+		padding: 0 10px;
+		border-radius: var(--grapple-radius-md);
+		font-size: 16px;
+		line-height: 1.5;
+	}
+
+	.grapple > .grapple-controls tr.toolbar > th > .actions > .dropdown-toggle::after {
+		width: 24px;
+		height: 24px;
+	}
+
+	.grapple > .grapple-pagination .grapple-pagination__pages--full {
+		display: block;
+	}
+
+	.grapple > .grapple-pagination .grapple-pagination__pages--compact {
+		display: none;
+	}
+
+	.grapple > .grapple-pagination .pagination > li:is(.prev, .next) > :is(a, span),
+	.grapple > .grapple-pagination .pagination > :is(.previous_page, .next_page) {
+		width: auto;
+		padding: 8px 10px;
+		font-size: 16px;
+	}
+
+	.grapple > .grapple-pagination .pagination > li:is(.prev, .next) > :is(a, span)::before,
+	.grapple > .grapple-pagination .pagination > :is(.previous_page, .next_page)::before {
+		content: none;
+	}
+}
+
+.grapple .ms-options-wrap > .ms-options > ul {
+	width: 100% !important;
+}
+.grapple .ms-options-wrap > button {
+	font-size: 14px !important;
+}

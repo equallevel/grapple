@@ -10,8 +10,19 @@ module Grapple
 		helper :body, Grapple::Components::HtmlBody
 		helper :footer, Grapple::Components::HtmlFooter
 
+		# Row components
+		helper :row_menu, Grapple::Components::RowMenu
+		helper :identifier_cell, Grapple::Components::IdentifierCell
+
+		# The toolbar and count render above the data table and the pagination below it, so the
+		# data table can scroll horizontally on its own
 		def table(content, attributes = {})
-			"#{template.content_tag('table', content, attributes)}\n".html_safe
+			html = ''
+			html << controls_html
+			html << template.content_tag('div', template.content_tag('table', content, attributes), class: 'grapple-scroll')
+			html << "\n"
+			html << pagination_html
+			html.html_safe
 		end
 		
 		# Wrap the table in a div
@@ -38,6 +49,41 @@ module Grapple
 		# HTML to render after the container
 		def after_container
 			''
+		end
+
+	protected
+
+		# Helper output that renders outside the data table is held for #table, and the helper returns
+		# nothing in its place. Pagination only moves when it has page links; the no-results row stays
+		# in the data table.
+		def invoke_helper(name, *arguments, &block)
+			html = super
+			if name == :toolbar || name == :infobar || (name == :pagination && page_links?(name))
+				outside_table[name] << html
+				return ''
+			end
+			html
+		end
+
+		def page_links?(name)
+			component = @helper_instances[name]
+			component.respond_to?(:page_links?) && component.page_links?
+		end
+
+		def outside_table
+			@outside_table ||= { toolbar: '', infobar: '', pagination: '' }
+		end
+
+		def controls_html
+			rows = outside_table[:toolbar] + outside_table[:infobar]
+			return '' if rows.blank?
+			"<div class=\"grapple-controls\">\n<table role=\"presentation\">\n<thead>\n#{rows}</thead>\n</table>\n</div>\n"
+		end
+
+		def pagination_html
+			rows = outside_table[:pagination]
+			return '' if rows.blank?
+			"<div class=\"grapple-pagination\">\n<table role=\"presentation\">\n<tfoot>\n#{rows}</tfoot>\n</table>\n</div>\n"
 		end
 
 	end
