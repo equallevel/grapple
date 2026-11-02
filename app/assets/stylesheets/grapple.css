@@ -897,6 +897,7 @@
 	font-weight: 400;
 	line-height: 22px;
 	color: var(--grapple-text);
+	border-right: none;
 }
 
 .grapple > .grapple-controls tr.toolbar input.search-query::placeholder {
@@ -1030,9 +1031,9 @@
 	opacity: 1;
 }
 
-.grapple > .grapple-controls tr.toolbar .search-form-component :is(.ms-options-wrap > button, [id="more-dropdown"] > .dropdown-toggle):is(:hover, [aria-expanded="true"], .show),
-.grapple > .grapple-controls tr.toolbar .search-form-component .ms-options-wrap.ms-active > button,
-.grapple > .grapple-controls tr.toolbar .search-form-component select:hover {
+/* select sits inside the :is() so it outranks the #fff in the filter buttons rule above */
+.grapple > .grapple-controls tr.toolbar .search-form-component :is(.ms-options-wrap > button, select, [id="more-dropdown"] > .dropdown-toggle):is(:hover, [aria-expanded="true"], .show),
+.grapple > .grapple-controls tr.toolbar .search-form-component .ms-options-wrap.ms-active > button {
 	background-color: var(--grapple-hover);
 	color: var(--grapple-text-muted);
 }

@@ -286,7 +286,11 @@ GrappleTable.prototype = {
 				if(search.indexOf(item) > -1 && maxWidth > width) {
 					width = maxWidth;
 				}
-				sum += width + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
+				sum += width + parseFloat(style.marginRight);
+				// Actions' auto margin computes to the row's free space, which made every fit a tie
+				if(actions.indexOf(item) === -1) {
+					sum += parseFloat(style.marginLeft);
+				}
 			});
 			return sum + Math.max(items.length - 1, 0) * gap;
 		};
