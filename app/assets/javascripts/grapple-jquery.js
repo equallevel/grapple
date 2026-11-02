@@ -276,11 +276,17 @@ GrappleTable.prototype = {
 		if(!filters.length) {
 			return;
 		}
+		// The search field can shrink to fit the row, so it counts at its max-width (its preferred size)
 		var total = function(items) {
 			var sum = 0;
 			$.each(items, function(i, item) {
 				var style = window.getComputedStyle(item);
-				sum += item.getBoundingClientRect().width + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
+				var width = item.getBoundingClientRect().width;
+				var maxWidth = parseFloat(style.maxWidth);
+				if(search.indexOf(item) > -1 && maxWidth > width) {
+					width = maxWidth;
+				}
+				sum += width + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
 			});
 			return sum + Math.max(items.length - 1, 0) * gap;
 		};

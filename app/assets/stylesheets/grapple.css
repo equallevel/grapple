@@ -302,10 +302,8 @@
 	--grapple-radius-md: 6px;
 	--grapple-radius-lg: 8px;
 	--grapple-sticky-shadow: -2px 0 6px rgba(0, 0, 0, 0.15);
-	/* Toolbar controls: 32px below 761px, the search row grows to 40px above it */
+	/* Toolbar controls (search, filters, Actions) are 32px at every width */
 	--grapple-control-height: 32px;
-	--grapple-search-height: 32px;
-	--grapple-search-radius: var(--grapple-radius-sm);
 	--grapple-toolbar-row-break: 0px;
 	--grapple-cell-padding: 12px 16px;
 	--grapple-pinned-padding: 12px;
@@ -745,9 +743,13 @@
 .grapple > .grapple-controls tr.toolbar form.search-form > .search-form-component:has(> .search-query),
 .grapple > .grapple-controls tr.toolbar form.search-form > .search-query {
 	order: 1;
-	/* A zero basis keeps the button and Actions on the search row at narrow widths */
+	/*
+		A zero basis keeps the button and Actions on the search row at narrow widths; the field
+		grows to 200px (236px with the button) and fills less only when the row is narrower
+	*/
 	flex: 1 1 0;
 	min-width: 0;
+	max-width: 200px;
 }
 
 .grapple > .grapple-controls tr.toolbar form.search-form > .search-form-component:has(> [id="advanced-search-submit"]),
@@ -755,6 +757,19 @@
 	order: 2;
 	/* Joined to the search field */
 	margin-left: -8px;
+}
+
+/*
+	While the filters share the search row the field keeps its full width, so layoutToolbar moves
+	them below instead of squeezing the field
+*/
+.grapple > .grapple-controls tr.toolbar:not(.grapple-toolbar--filters-below, .grapple-toolbar--filters-stacked) form.search-form > :is(.search-form-component:has(> .search-query), .search-query) {
+	flex: 0 0 200px;
+}
+
+/* 16px from search to the filters when they share its row; layoutToolbar counts the margin */
+.grapple > .grapple-controls tr.toolbar:not(.grapple-toolbar--filters-below, .grapple-toolbar--filters-stacked) form.search-form > :is(.search-form-component:has(> [id="advanced-search-submit"]), input[type="submit"]) {
+	margin-right: 8px;
 }
 
 .grapple > .grapple-controls tr.toolbar form.search-form > .search-form-component {
@@ -870,11 +885,11 @@
 	box-sizing: border-box;
 	width: 100%;
 	max-width: none;
-	height: var(--grapple-search-height);
+	height: var(--grapple-control-height);
 	margin: 0;
-	padding: 0 10px;
+	padding: 0 8px;
 	border: 1px solid var(--grapple-control-border);
-	border-radius: var(--grapple-search-radius) 0 0 var(--grapple-search-radius);
+	border-radius: var(--grapple-radius-sm) 0 0 var(--grapple-radius-sm);
 	background-color: #fff;
 	box-shadow: none;
 	font-family: var(--grapple-font-family);
@@ -916,12 +931,12 @@
 	display: block;
 	box-sizing: border-box;
 	width: 36px;
-	height: var(--grapple-search-height);
+	height: var(--grapple-control-height);
 	margin: 0;
 	padding: 0;
 	overflow: hidden;
 	border: 0;
-	border-radius: 0 var(--grapple-search-radius) var(--grapple-search-radius) 0;
+	border-radius: 0 var(--grapple-radius-sm) var(--grapple-radius-sm) 0;
 	background: var(--grapple-theme) var(--grapple-icon-search) center / 20px 20px no-repeat;
 	box-shadow: none;
 	color: transparent;
@@ -1000,7 +1015,8 @@
 	-webkit-appearance: none;
 	appearance: none;
 	width: auto;
-	padding: 0 32px 0 8px;
+	/* 4px leaves exactly one 22px line inside the 32px box, so browsers can't place the text off-center */
+	padding: 4px 32px 4px 8px;
 	background: #fff var(--grapple-icon-select-chevron) right 8px center / 20px 20px no-repeat;
 	cursor: pointer;
 }
@@ -1105,11 +1121,18 @@
 	border-left: 0;
 	border-radius: 0 var(--grapple-radius-sm) var(--grapple-radius-sm) 0;
 	background-color: #fff;
+	color: inherit;
+	font: inherit;
 	cursor: pointer;
 }
 
 .grapple > .grapple-controls tr.toolbar .more-filter-wrapper > .input-group > .remove-more-filter-wrapper:hover {
 	background-color: var(--grapple-hover);
+}
+
+.grapple > .grapple-controls tr.toolbar .more-filter-wrapper > .input-group > .remove-more-filter-wrapper:focus-visible {
+	outline: 2px solid var(--grapple-focus);
+	outline-offset: 2px;
 }
 
 .grapple > .grapple-controls tr.toolbar .more-filter-wrapper .remove-more-filter > :is(.bi, .glyphicon) {
@@ -1121,8 +1144,6 @@
 	display: block;
 	width: 16px;
 	height: 16px;
-	color: inherit;
-	font: inherit;
 	background-color: var(--grapple-text);
 	-webkit-mask: var(--grapple-icon-x) center / 16px 16px no-repeat;
 	mask: var(--grapple-icon-x) center / 16px 16px no-repeat;
@@ -1130,11 +1151,6 @@
 
 /* Option panels: multi-selects and the More Filters menu */
 .grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options,
-.grapple > .grapple-controls tr.toolbar .more-filter-wrapper > .input-group > .remove-more-filter-wrapper:focus-visible {
-	outline: 2px solid var(--grapple-focus);
-	outline-offset: 2px;
-}
-
 .grapple > .grapple-controls tr.toolbar [id="more-dropdown"] > .dropdown-menu {
 	box-sizing: border-box;
 	min-width: 100%;
@@ -1319,7 +1335,7 @@
 	box-shadow: none;
 	font-family: var(--grapple-font-family);
 	font-size: 14px;
-	font-weight: 400;
+	font-weight: 600;
 	line-height: 22px;
 	text-decoration: none;
 	white-space: nowrap;
@@ -1498,8 +1514,6 @@
 
 @media (min-width: 761px) {
 	.grapple {
-		--grapple-search-height: 40px;
-		--grapple-search-radius: var(--grapple-radius-md);
 		--grapple-toolbar-row-break: 8px;
 		--grapple-cell-padding: 16px 12px;
 		--grapple-pinned-padding: 16px;
@@ -1525,35 +1539,6 @@
 
 	.grapple > .grapple-scroll > table > thead > tr > th.grapple-identifier-heading {
 		padding-left: calc(16px + var(--grapple-menu-toggle-size) + 16px);
-	}
-
-	/* Search row: a 504px field and 40px controls */
-	.grapple > .grapple-controls tr.toolbar form.search-form > .search-form-component:has(> .search-query),
-	.grapple > .grapple-controls tr.toolbar form.search-form > .search-query {
-		flex: 0 1 504px;
-	}
-
-	.grapple > .grapple-controls tr.toolbar input.search-query {
-		font-size: 16px;
-		line-height: 1.5;
-	}
-
-	.grapple > .grapple-controls tr.toolbar :is([id="advanced-search-submit"], form.search-form > input[type="submit"]) {
-		width: 40px;
-	}
-
-	.grapple > .grapple-controls tr.toolbar > th > .actions > .btn {
-		gap: 8px;
-		height: 40px;
-		padding: 0 10px;
-		border-radius: var(--grapple-radius-md);
-		font-size: 16px;
-		line-height: 1.5;
-	}
-
-	.grapple > .grapple-controls tr.toolbar > th > .actions > .dropdown-toggle::after {
-		width: 24px;
-		height: 24px;
 	}
 
 	.grapple > .grapple-pagination .grapple-pagination__pages--full {
