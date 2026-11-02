@@ -1121,6 +1121,8 @@
 	display: block;
 	width: 16px;
 	height: 16px;
+	color: inherit;
+	font: inherit;
 	background-color: var(--grapple-text);
 	-webkit-mask: var(--grapple-icon-x) center / 16px 16px no-repeat;
 	mask: var(--grapple-icon-x) center / 16px 16px no-repeat;
@@ -1128,6 +1130,11 @@
 
 /* Option panels: multi-selects and the More Filters menu */
 .grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options,
+.grapple > .grapple-controls tr.toolbar .more-filter-wrapper > .input-group > .remove-more-filter-wrapper:focus-visible {
+	outline: 2px solid var(--grapple-focus);
+	outline-offset: 2px;
+}
+
 .grapple > .grapple-controls tr.toolbar [id="more-dropdown"] > .dropdown-menu {
 	box-sizing: border-box;
 	min-width: 100%;
