@@ -1,0 +1,28 @@
+name: Build and Publish
+
+permissions:
+  contents: read
+  packages: write   # Needed to publish private gems
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  unit-tests:
+    # main as of 2026-10-21; no version tag published for the Ruby workflows yet
+    uses: Euna-Infrastructure/github-workflows/.github/workflows/ruby-rspec-unit-tests.yml@main
+    with:
+      ruby_versions: |
+        3.3
+        3.4
+      coverage_ruby_version: "3.4"
+  build-publish-gem:
+    needs: unit-tests
+    permissions:
+      contents: read
+      packages: write
+    # Series, not an exact patch: newer runner images only ship the latest patch per series
+    uses:  Euna-Infrastructure/github-workflows/.github/workflows/ruby-rspec-unit-tests.yml@main
+    with:
+      ruby_version: "3.4"
