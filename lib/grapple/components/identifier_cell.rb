@@ -1,7 +1,8 @@
 module Grapple
 	module Components
 
-		# First cell of a row: an optional checkbox, the 3-dot row menu, the identifier and an optional paperclip
+		# First two cells of a row: the controls cell (an optional checkbox and the 3-dot row menu), then
+		# the identifier and an optional paperclip. The table needs `row_controls: true`.
 		# @example
 		#   <%= t.identifier_cell label: requisition.number, url: requisition_path(requisition),
 		#     select: check_box_tag('ids[]', requisition.id), menu: menu_items, attachments: true %>
@@ -10,12 +11,15 @@ module Grapple
 			setting :attachments_label, :has_attachments
 
 			def render(options = {})
+				raise ArgumentError.new('identifier_cell needs table_for(..., row_controls: true)') unless builder.row_controls?
+				controls = ''
+				controls << content_tag(:span, options[:select], class: 'grapple-row-select') if options[:select].present?
+				controls << row_menu(options[:menu])
 				html = ''
-				html << content_tag(:span, options[:select], class: 'grapple-row-select') if options[:select].present?
-				html << row_menu(options[:menu])
 				html << identifier(options.fetch(:label), options[:url])
 				html << attachment if options[:attachments]
-				content_tag(:td, content_tag(:div, html.html_safe, class: 'grapple-identifier'), class: 'grapple-identifier-cell')
+				content_tag(:td, content_tag(:div, controls.html_safe, class: 'grapple-row-controls__items'), class: 'grapple-row-controls') +
+					content_tag(:td, content_tag(:div, html.html_safe, class: 'grapple-identifier'), class: 'grapple-identifier-cell')
 			end
 
 		protected

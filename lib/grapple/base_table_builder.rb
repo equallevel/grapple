@@ -68,6 +68,16 @@ module Grapple
 			{ }
 		end
 
+		# Columns size from their width, min_width and max_width options instead of <col> width hints
+		def strict_widths?
+			@options[:strict_widths].present?
+		end
+
+		# The table has a leading column for each row's checkbox and 3-dot menu
+		def row_controls?
+			@options[:row_controls].present?
+		end
+
 		# HTML to insert before the <table> tag
 		def before_table
 			''

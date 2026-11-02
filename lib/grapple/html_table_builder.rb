@@ -14,9 +14,17 @@ module Grapple
 		helper :row_menu, Grapple::Components::RowMenu
 		helper :identifier_cell, Grapple::Components::IdentifierCell
 
+		ROW_CONTROLS_COLUMN = { label: '', row_controls: true, class: 'grapple-row-controls-heading' }.freeze
+
+		def initialize(template, columns, records, params = {}, *options)
+			super
+			@columns = [ROW_CONTROLS_COLUMN] + @columns if row_controls?
+		end
+
 		# The toolbar and count render above the data table and the pagination below it, so the
 		# data table can scroll horizontally on its own
 		def table(content, attributes = {})
+			attributes = attributes.merge(class: [attributes[:class], table_classes].flatten.compact.join(' ').presence)
 			html = ''
 			html << controls_html
 			html << template.content_tag('div', template.content_tag('table', content, attributes), class: 'grapple-scroll')
@@ -52,6 +60,13 @@ module Grapple
 		end
 
 	protected
+
+		def table_classes
+			classes = []
+			classes << 'grapple-strict-widths' if strict_widths?
+			classes << 'grapple-has-row-controls' if row_controls?
+			classes
+		end
 
 		# Helper output that renders outside the data table is held for #table, and the helper returns
 		# nothing in its place. Pagination only moves when it has page links; the no-results row stays

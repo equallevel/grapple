@@ -475,6 +475,41 @@
 	box-shadow: var(--grapple-sticky-shadow);
 }
 
+/*
+	Strict widths: the column options set content widths, and content-box adds each cell's own
+	padding. Spare width goes to the columns without a width, since sized columns don't grow.
+*/
+.grapple > .grapple-scroll > table.grapple-strict-widths > thead > tr > th {
+	box-sizing: content-box;
+	width: var(--grapple-col-width, auto);
+	min-width: var(--grapple-col-min, 0);
+}
+
+/* Row controls: the checkbox and 3-dot column and the identifier column are both pinned */
+.grapple > .grapple-scroll > table.grapple-has-row-controls {
+	--grapple-controls-width: calc(12px + var(--grapple-menu-toggle-size));
+}
+
+.grapple > .grapple-scroll > table.grapple-has-row-controls:has(> tbody .grapple-row-select) {
+	--grapple-controls-width: calc(12px + 24px + 16px + var(--grapple-menu-toggle-size));
+}
+
+.grapple > .grapple-scroll > table.grapple-has-row-controls > :is(thead, tbody) > tr > :is(th, td):first-child:not([colspan]) {
+	box-sizing: border-box;
+	width: var(--grapple-controls-width);
+	min-width: var(--grapple-controls-width);
+	box-shadow: none;
+}
+
+.grapple > .grapple-scroll > table.grapple-has-row-controls > :is(thead, tbody) > tr > :is(th, td):nth-child(2) {
+	position: sticky;
+	left: var(--grapple-controls-width);
+	z-index: 1;
+	box-shadow: var(--grapple-sticky-shadow);
+	/* The table edge used to hide the shadow's left half; here it would fall on the controls */
+	clip-path: inset(0 -12px 0 0);
+}
+
 /* Each pinned cell stacks on its own, so the one with an open row menu goes above the rest */
 .grapple > .grapple-scroll > table > tbody > tr > td:first-child:has(.dropdown-menu.show) {
 	z-index: 3;
@@ -544,14 +579,35 @@
 
 /**************** Identifier cell and row pieces ****************/
 
+/* 12px from the table edge to the 3-dot, and 12px from it to the identifier */
+.grapple > .grapple-scroll > table > tbody > tr > td.grapple-row-controls {
+	padding: 12px 0 12px 12px;
+}
+
+.grapple > .grapple-scroll > table > thead > tr > th.grapple-row-controls-heading {
+	padding-right: 0;
+	padding-left: 12px;
+}
+
 .grapple > .grapple-scroll > table > tbody > tr > td.grapple-identifier-cell {
 	padding: 12px;
+}
+
+.grapple > .grapple-scroll > table > thead > tr > th.grapple-identifier-heading {
+	padding-right: 12px;
+	padding-left: 12px;
+}
+
+.grapple .grapple-row-controls__items {
+	display: flex;
+	align-items: center;
+	gap: 16px;
 }
 
 .grapple .grapple-identifier {
 	display: flex;
 	align-items: center;
-	gap: 16px;
+	gap: 4px;
 }
 
 .grapple .grapple-identifier__link {
@@ -559,17 +615,12 @@
 	text-decoration: underline;
 }
 
-/* 4px after the link, against the 16px gap */
+/* Right edge of the identifier area */
 .grapple .grapple-identifier__attachment {
 	display: inline-flex;
 	flex: none;
-	margin-left: -12px;
+	margin-left: auto;
 	color: var(--grapple-text-subtle);
-}
-
-/* Header label lines up with the identifiers of rows without a checkbox */
-.grapple > .grapple-scroll > table > thead > tr > th.grapple-identifier-heading {
-	padding-left: calc(12px + var(--grapple-menu-toggle-size) + 16px);
 }
 
 .grapple .grapple-row-select {
@@ -1520,7 +1571,6 @@
 		--grapple-pinned-padding: 16px;
 		--grapple-cell-font-size: 14px;
 		--grapple-cell-line-height: 22px;
-		--grapple-menu-toggle-size: 26px;
 	}
 
 	/* 16px at the table edges, 24px between columns */
@@ -1534,12 +1584,16 @@
 		padding-right: 16px;
 	}
 
-	.grapple > .grapple-scroll > table > tbody > tr > td.grapple-identifier-cell {
-		padding: 8px 16px;
+	.grapple > .grapple-scroll > table > tbody > tr > td.grapple-row-controls {
+		padding: 8px 0 8px 12px;
 	}
 
-	.grapple > .grapple-scroll > table > thead > tr > th.grapple-identifier-heading {
-		padding-left: calc(16px + var(--grapple-menu-toggle-size) + 16px);
+	.grapple > .grapple-scroll > table > thead > tr > th.grapple-row-controls-heading {
+		padding-left: 12px;
+	}
+
+	.grapple > .grapple-scroll > table > tbody > tr > td.grapple-identifier-cell {
+		padding: 8px 12px;
 	}
 
 	.grapple > .grapple-pagination .grapple-pagination__pages--full {
