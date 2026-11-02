@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    grapple (0.4.2)
+    grapple (1.0.0)
       actionpack (>= 4.2.11.1)
       activesupport (>= 4.2.11.1)
 
@@ -160,7 +160,7 @@ DEPENDENCIES
   grapple!
   rake
   rspec-html-matchers (~> 0.7.0)
-  rspec-rails (>= 3.0)
+  rspec-rails (>= 3.0, < 9)
   sqlite3
   will_paginate
 

@@ -28,9 +28,10 @@ describe 'html footer' do
 		
 		html = builder.footer
 
-		expect(html).to have_tag('tfoot') do
-			with_tag('tr', count: 1) 
-		end
+		# Pagination with page links renders below the data table
+		expect(html).to have_tag('tfoot')
+		expect(html).not_to have_tag('tfoot tr')
+		expect(builder.table('')).to have_tag('div.grapple-pagination tfoot tr', count: 1)
 
 		#puts html
 	end

@@ -14,6 +14,8 @@ module Grapple
 		autoload :WillPaginate
 		autoload :Toolbar
 		autoload :Actions
+		autoload :RowMenu
+		autoload :IdentifierCell
 		autoload :SearchForm
 		autoload :SearchQueryField
 		autoload :SearchSubmit

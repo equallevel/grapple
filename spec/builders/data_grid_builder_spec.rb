@@ -25,7 +25,8 @@ describe 'Base Table Builder' do
 		expect(html).to have_tag('div.actions')
 
 		html = builder.toolbar
-		expect(html).to have_tag('tr.toolbar')
+		expect(html).to be_blank
+		expect(builder.table('')).to have_tag('div.grapple-controls tr.toolbar')
 
 		html = builder.column_headings
 		expect(html).to have_tag('tr.column-headers')

@@ -26,7 +26,9 @@ describe 'toolbar' do
 			concat('<div class="test">test</div>'.html_safe)
 		end
 
-		expect(html).to have_tag('tr', with: { class: 'toolbar' }) do
+		# The toolbar renders above the data table, not where the helper is called
+		expect(html).to be_blank
+		expect(builder.table('')).to have_tag('div.grapple-controls tr', with: { class: 'toolbar' }) do
 			with_tag('th', with: { colspan: columns.length }) do
 				with_tag('div', with: { class: 'test' })
 			end

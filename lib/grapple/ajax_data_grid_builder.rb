@@ -15,7 +15,8 @@ module Grapple
 				"grapple-ajax-url" => @options[:url] || template.url_for(action: 'table'),
 				# History is disabled by default, override container_attributes
 				# in an initializer to enable it by default
-				"grapple-ajax-history" => @options[:history] == true ? '1' : '0'
+				"grapple-ajax-history" => @options[:history] == true ? '1' : '0',
+				"grapple-search-required-message" => I18n.translate(:search_term_required)
 			}
 			
 			# The namespace allows the query parameters to be namespaced so 
