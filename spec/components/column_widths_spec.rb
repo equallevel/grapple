@@ -7,7 +7,8 @@ describe 'column widths' do
 		{ label: 'Name', width: 72 },
 		{ label: 'Suppliers', min_width: 150 },
 		{ label: 'User', min_width: 100, max_width: 150 },
-		{ label: 'Notes' }
+		{ label: 'Notes' },
+		{ label: 'Status', min_width: 100, max_width: 200, mobile_width: 75 }
 	]
 
 	before do
@@ -51,25 +52,38 @@ describe 'column widths' do
 			'--grapple-col-width: 72px; --grapple-col-min: 72px',
 			'--grapple-col-min: 150px',
 			'--grapple-col-width: 150px; --grapple-col-min: 100px',
-			nil
+			nil,
+			'--grapple-col-width: 200px; --grapple-col-min: 100px; ' \
+				'--grapple-col-width-mobile: 75px; --grapple-col-min-mobile: 75px'
 		])
 	end
 
-	# width is fixed; max_width caps an otherwise variable column; min_width is its floor
+	def random_width_options(random)
+		column = { label: 'Column' }
+		[:width, :min_width, :max_width, :mobile_width].each do |key|
+			column[key] = random.rand(1..400) if random.rand < 0.5
+		end
+		column
+	end
+
+	# width is fixed; max_width caps an otherwise variable column; min_width is its floor;
+	# mobile_width fixes the column below the desktop breakpoint
 	it "maps any combination of width options to the heading's custom properties" do
 		random = Random.new(10862)
 		200.times do
-			column = { label: 'Column' }
-			[:width, :min_width, :max_width].each do |key|
-				column[key] = random.rand(1..400) if random.rand < 0.5
-			end
+			column = random_width_options(random)
 			expected_width = column[:width] || column[:max_width]
 			expected_min = column[:width] || column[:min_width]
+			expected_mobile = column[:mobile_width]
 
 			style = heading_styles([column]).first.to_s
 
 			expect(style[/--grapple-col-width: (\d+)px/, 1]&.to_i).to eq(expected_width), column.inspect
 			expect(style[/--grapple-col-min: (\d+)px/, 1]&.to_i).to eq(expected_min), column.inspect
+			expect(style[/--grapple-col-width-mobile: (\d+)px/, 1]&.to_i)
+				.to eq(expected_mobile), column.inspect
+			expect(style[/--grapple-col-min-mobile: (\d+)px/, 1]&.to_i)
+				.to eq(expected_mobile), column.inspect
 		end
 	end
 
@@ -83,17 +97,15 @@ describe 'column widths' do
 	it "marks columns with a fixed or maximum width for truncation, for any combination of width options" do
 		random = Random.new(10862)
 		200.times do
-			column = { label: 'Column' }
-			[:width, :min_width, :max_width].each do |key|
-				column[key] = random.rand(1..400) if random.rand < 0.5
-			end
+			column = random_width_options(random)
+			bounded = (column[:width] || column[:max_width] || column[:mobile_width]).present?
 
-			expect(truncating([column])).to eq([(column[:width] || column[:max_width]).present?]), column.inspect
+			expect(truncating([column])).to eq([bounded]), column.inspect
 		end
 	end
 
 	it "marks nothing for truncation without strict_widths" do
-		expect(truncating(columns, strict: false)).to eq([false, false, false, false])
+		expect(truncating(columns, strict: false)).to eq([false, false, false, false, false])
 	end
 
 end

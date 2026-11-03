@@ -54,6 +54,24 @@ GrappleTable.CSS_TRUNCATE = 'grapple-truncate';
 GrappleTable.CSS_CLAMP = 'grapple-clamp';
 // Truncating hides overflow, which would clip controls, menus and nested tables
 GrappleTable.TRUNCATE_SKIP = 'input, select, textarea, button, table, .dropdown';
+GrappleTable.DATA_CLAMP_TITLE = 'grapple-clamp-title';
+
+/**
+ * Shows a clipped value in full on hover. Checked on each hover, not on load, because resizing
+ * changes which values are clipped. A tooltip already inside the value, such as a supplier list,
+ * is left to show instead.
+ */
+GrappleTable.titleTruncated = function(clamp) {
+	var $clamp = $(clamp);
+	var owned = $clamp.data(GrappleTable.DATA_CLAMP_TITLE);
+	var clipped = clamp.scrollHeight > clamp.clientHeight && !$clamp.find('[title]').length;
+	if(clipped) {
+		$clamp.attr('title', $.trim($clamp.text())).data(GrappleTable.DATA_CLAMP_TITLE, true);
+	}
+	else if(owned) {
+		$clamp.removeAttr('title').removeData(GrappleTable.DATA_CLAMP_TITLE);
+	}
+};
 
 GrappleTable.prototype = {
 	
@@ -243,6 +261,9 @@ GrappleTable.prototype = {
 				}
 				cell.wrapInner('<div class="' + GrappleTable.CSS_CLAMP + '"></div>');
 			});
+		});
+		this.body.on('mouseenter', '.' + GrappleTable.CSS_CLAMP, function() {
+			GrappleTable.titleTruncated(this);
 		});
 	},
 
