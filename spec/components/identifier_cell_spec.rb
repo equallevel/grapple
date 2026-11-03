@@ -49,6 +49,12 @@ describe 'identifier cell' do
 		expect(html).not_to have_tag('a.grapple-identifier__link')
 	end
 
+	it "draws a 16px paperclip" do
+		html = @builder.identifier_cell(label: 'REQ-1', url: '/requisitions/1', attachments: true)
+
+		expect(html).to have_tag('span.grapple-identifier__attachment > svg', with: { width: '16', height: '16' })
+	end
+
 	it "needs the table's controls column" do
 		builder = Grapple::DataGridBuilder.new(self, users_columns, users_records, {})
 
