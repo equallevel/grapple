@@ -60,17 +60,23 @@ module Grapple
 
 			# Values truncate after three lines where the column can't grow past a set width
 			def truncate?(column)
-				builder.strict_widths? && (column[:width] || column[:max_width]).present?
+				bounded = column[:width] || column[:max_width] || column[:mobile_width]
+				builder.strict_widths? && bounded.present?
 			end
 
-			# Content widths for grapple.css; width is fixed, max_width caps a variable column
+			# Content widths for grapple.css; width is fixed, max_width caps a variable column.
+			# mobile_width fixes the column below the desktop breakpoint, since an inline style
+			# can't hold a media query.
 			def width_style(column)
 				return nil unless builder.strict_widths?
 				width = column[:width] || column[:max_width]
 				min = column[:width] || column[:min_width]
+				mobile = column[:mobile_width]
 				styles = []
 				styles << "--grapple-col-width: #{width.to_i}px" if width.present?
 				styles << "--grapple-col-min: #{min.to_i}px" if min.present?
+				styles << "--grapple-col-width-mobile: #{mobile.to_i}px" if mobile.present?
+				styles << "--grapple-col-min-mobile: #{mobile.to_i}px" if mobile.present?
 				styles.join('; ')
 			end
 

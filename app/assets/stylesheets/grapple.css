@@ -478,11 +478,20 @@
 /*
 	Strict widths: the column options set content widths, and content-box adds each cell's own
 	padding. Spare width goes to the columns without a width, since sized columns don't grow.
+	At 500px and below a column's mobile width replaces its desktop sizing. This breakpoint is
+	narrower than the 761px one the rest of the layout uses.
 */
 .grapple > .grapple-scroll > table.grapple-strict-widths > thead > tr > th {
 	box-sizing: content-box;
-	width: var(--grapple-col-width, auto);
-	min-width: var(--grapple-col-min, 0);
+	width: var(--grapple-col-width-mobile, var(--grapple-col-width, auto));
+	min-width: var(--grapple-col-min-mobile, var(--grapple-col-min, 0));
+}
+
+@media (min-width: 501px) {
+	.grapple > .grapple-scroll > table.grapple-strict-widths > thead > tr > th {
+		width: var(--grapple-col-width, auto);
+		min-width: var(--grapple-col-min, 0);
+	}
 }
 
 /* Row controls: the checkbox and 3-dot column and the identifier column are both pinned */
