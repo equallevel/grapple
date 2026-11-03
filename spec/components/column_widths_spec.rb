@@ -73,4 +73,27 @@ describe 'column widths' do
 		end
 	end
 
+
+	def truncating(cols, strict: true)
+		builder = strict ? strict_builder(cols) : Grapple::DataGridBuilder.new(self, cols, users_records, {})
+		Nokogiri::HTML.fragment(builder.column_headings).css('th').map { |th| th['class'].to_s.split.include?('grapple-truncate') }
+	end
+
+	# Values truncate after three lines only where the column can't grow past a set width
+	it "marks columns with a fixed or maximum width for truncation, for any combination of width options" do
+		random = Random.new(10862)
+		200.times do
+			column = { label: 'Column' }
+			[:width, :min_width, :max_width].each do |key|
+				column[key] = random.rand(1..400) if random.rand < 0.5
+			end
+
+			expect(truncating([column])).to eq([(column[:width] || column[:max_width]).present?]), column.inspect
+		end
+	end
+
+	it "marks nothing for truncation without strict_widths" do
+		expect(truncating(columns, strict: false)).to eq([false, false, false, false])
+	end
+
 end

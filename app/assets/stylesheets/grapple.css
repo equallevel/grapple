@@ -615,6 +615,30 @@
 	text-decoration: underline;
 }
 
+/*
+	Values in fixed- or maximum-width columns show three lines, then an ellipsis. Long unbroken words
+	break anywhere first so they stay inside the column. grapple-jquery.js adds .grapple-clamp.
+*/
+.grapple > .grapple-scroll > table > tbody > tr > td .grapple-clamp {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
+	line-clamp: 3;
+	overflow: hidden;
+	overflow-wrap: anywhere;
+}
+
+/* Lets the identifier link shrink so the paperclip keeps its place */
+.grapple .grapple-identifier,
+.grapple .grapple-identifier__link {
+	min-width: 0;
+}
+
+/* Hidden overflow would cut off the focus ring of links inside the wrapper */
+.grapple > .grapple-scroll > table > tbody > tr > td > .grapple-clamp a:focus-visible {
+	outline-offset: -2px;
+}
+
 /* Right edge of the identifier area */
 .grapple .grapple-identifier__attachment {
 	display: inline-flex;
