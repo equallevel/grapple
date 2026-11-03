@@ -1,0 +1,19 @@
+name: Unit Tests
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  unit-tests:
+    # main as of 2026-10-21; no version tag published for the Ruby workflows yet
+    uses: Euna-Infrastructure/github-workflows/.github/workflows/ruby-rspec-unit-tests.yml@main
+    with:
+      ruby_versions: |
+        3.3
+        3.4
+      coverage_ruby_version: "3.4"

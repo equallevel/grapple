@@ -15,6 +15,8 @@ Gem::Specification.new do |s|
 	s.rdoc_options = ["--charset=UTF-8"]
 	s.require_paths = ["lib"]
 	s.license = 'MIT'
+	s.metadata['allowed_push_host'] = 'https://rubygems.pkg.github.com/equallevel'
+	s.metadata['github_repo'] = 'ssh://github.com/equallevel/grapple'
   
 	s.required_ruby_version = '>= 1.9.3'
 
