@@ -50,6 +50,10 @@ GrappleTable.CSS_SEARCH_FIELD_ERROR = 'grapple-search-field--error';
 GrappleTable.CSS_FILTERS_BELOW = 'grapple-toolbar--filters-below';
 GrappleTable.CSS_FILTERS_STACKED = 'grapple-toolbar--filters-stacked';
 GrappleTable.DESKTOP_QUERY = '(min-width: 761px)';
+GrappleTable.CSS_TRUNCATE = 'grapple-truncate';
+GrappleTable.CSS_CLAMP = 'grapple-clamp';
+// Truncating hides overflow, which would clip controls, menus and nested tables
+GrappleTable.TRUNCATE_SKIP = 'input, select, textarea, button, table, .dropdown';
 
 GrappleTable.prototype = {
 	
@@ -71,6 +75,7 @@ GrappleTable.prototype = {
 		self.initSearchForm();
 		self.initPagination();
 		self.initMenus();
+		self.initTruncation();
 		self.initToolbarLayout();
 		self.initPlugins();
 		
@@ -203,6 +208,44 @@ GrappleTable.prototype = {
 	 * Row menus use fixed positioning so the scrolling data table doesn't clip them.
 	 * Requires Bootstrap 5 JS; without it the data-bs-toggle attributes do nothing.
 	 */
+	/**
+	 * Values in columns marked grapple-truncate (a fixed or maximum width) are wrapped so CSS can
+	 * cut them off after three lines. Line clamping needs an element inside the cell; it can't apply
+	 * to the <td> itself.
+	 */
+	initTruncation: function() {
+		var columns = [];
+		var headings = this.table.children('thead').find('tr.column-headers > th');
+		headings.each(function(i, th) {
+			if($(th).hasClass(GrappleTable.CSS_TRUNCATE)) {
+				columns.push(i);
+			}
+		});
+		if(!columns.length) {
+			return;
+		}
+		this.body.children('tr').each(function(i, row) {
+			var cells = $(row).children('td');
+			// Rows with merged cells, such as the no-results row, don't line up with the headings
+			if(cells.length !== headings.length) {
+				return;
+			}
+			$.each(columns, function(j, index) {
+				var cell = cells.eq(index);
+				// The identifier link is truncated on its own so the paperclip stays outside the clipped text
+				var identifier = cell.find('.grapple-identifier__link');
+				if(identifier.length) {
+					identifier.addClass(GrappleTable.CSS_CLAMP);
+					return;
+				}
+				if(cell.find('.' + GrappleTable.CSS_CLAMP + ', ' + GrappleTable.TRUNCATE_SKIP).length) {
+					return;
+				}
+				cell.wrapInner('<div class="' + GrappleTable.CSS_CLAMP + '"></div>');
+			});
+		});
+	},
+
 	initMenus: function() {
 		if(typeof bootstrap === 'undefined' || !bootstrap.Dropdown) {
 			return;

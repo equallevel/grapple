@@ -40,6 +40,7 @@ module Grapple
 				if column[:class]
 					column[:class].split(" ").each{|c| cell_classes << c}
 				end
+				cell_classes << 'grapple-truncate' if truncate?(column)
 				
 				cell_classes = ' class="' + cell_classes.join(' ') + '"'
 				title = column[:title] ? " title=\"#{h(column[:title])}\"" : ''
@@ -55,6 +56,11 @@ module Grapple
 			def row_controls_header(column)
 				label = content_tag(:span, t(row_controls_label), class: 'grapple-visually-hidden')
 				"<th class=\"#{column[:class]}\">#{label}</th>".html_safe
+			end
+
+			# Values truncate after three lines where the column can't grow past a set width
+			def truncate?(column)
+				builder.strict_widths? && (column[:width] || column[:max_width]).present?
 			end
 
 			# Content widths for grapple.css; width is fixed, max_width caps a variable column

@@ -37,7 +37,7 @@ module Grapple
 
 			def attachment
 				text = content_tag(:span, t(attachments_label), class: 'grapple-visually-hidden')
-				content_tag(:span, lucide_icon(:paperclip, 14) + text, class: 'grapple-identifier__attachment')
+				content_tag(:span, lucide_icon(:paperclip, 16) + text, class: 'grapple-identifier__attachment')
 			end
 
 		end
