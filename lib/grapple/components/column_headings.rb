@@ -40,7 +40,8 @@ module Grapple
 				if column[:class]
 					column[:class].split(" ").each{|c| cell_classes << c}
 				end
-				cell_classes << 'grapple-truncate' if truncate?(column)
+				truncate = truncate_class(column)
+				cell_classes << truncate if truncate
 				
 				cell_classes = ' class="' + cell_classes.join(' ') + '"'
 				title = column[:title] ? " title=\"#{h(column[:title])}\"" : ''
@@ -58,19 +59,27 @@ module Grapple
 				"<th class=\"#{column[:class]}\">#{label}</th>".html_safe
 			end
 
-			# Values truncate after three lines where the column can't grow past a set width
-			def truncate?(column)
-				builder.strict_widths? && (column[:width] || column[:max_width]).present?
+			# Values truncate after three lines where the column can't grow past a set width. A column
+			# bounded only by mobile_width can grow on desktop, so it truncates only on mobile.
+			def truncate_class(column)
+				return nil unless builder.strict_widths?
+				return 'grapple-truncate' if (column[:width] || column[:max_width]).present?
+				'grapple-truncate-mobile' if column[:mobile_width].present?
 			end
 
-			# Content widths for grapple.css; width is fixed, max_width caps a variable column
+			# Content widths for grapple.css; width is fixed, max_width caps a variable column.
+			# mobile_width fixes the column below the desktop breakpoint, since an inline style
+			# can't hold a media query.
 			def width_style(column)
 				return nil unless builder.strict_widths?
 				width = column[:width] || column[:max_width]
 				min = column[:width] || column[:min_width]
+				mobile = column[:mobile_width]
 				styles = []
 				styles << "--grapple-col-width: #{width.to_i}px" if width.present?
 				styles << "--grapple-col-min: #{min.to_i}px" if min.present?
+				styles << "--grapple-col-width-mobile: #{mobile.to_i}px" if mobile.present?
+				styles << "--grapple-col-min-mobile: #{mobile.to_i}px" if mobile.present?
 				styles.join('; ')
 			end
 
