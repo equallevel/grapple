@@ -51,7 +51,9 @@ GrappleTable.CSS_FILTERS_BELOW = 'grapple-toolbar--filters-below';
 GrappleTable.CSS_FILTERS_STACKED = 'grapple-toolbar--filters-stacked';
 GrappleTable.DESKTOP_QUERY = '(min-width: 761px)';
 GrappleTable.CSS_TRUNCATE = 'grapple-truncate';
+GrappleTable.CSS_TRUNCATE_MOBILE = 'grapple-truncate-mobile';
 GrappleTable.CSS_CLAMP = 'grapple-clamp';
+GrappleTable.CSS_CLAMP_MOBILE = 'grapple-clamp--mobile';
 // Truncating hides overflow, which would clip controls, menus and nested tables
 GrappleTable.TRUNCATE_SKIP = 'input, select, textarea, button, table, .dropdown';
 GrappleTable.DATA_CLAMP_TITLE = 'grapple-clamp-title';
@@ -229,14 +231,18 @@ GrappleTable.prototype = {
 	/**
 	 * Values in columns marked grapple-truncate (a fixed or maximum width) are wrapped so CSS can
 	 * cut them off after three lines. Line clamping needs an element inside the cell; it can't apply
-	 * to the <td> itself.
+	 * to the <td> itself. Columns marked grapple-truncate-mobile (only a mobile width) get a
+	 * modifier so the clamp applies only at the mobile breakpoint.
 	 */
 	initTruncation: function() {
 		var columns = [];
 		var headings = this.table.children('thead').find('tr.column-headers > th');
 		headings.each(function(i, th) {
 			if($(th).hasClass(GrappleTable.CSS_TRUNCATE)) {
-				columns.push(i);
+				columns.push({ index: i, clamp: GrappleTable.CSS_CLAMP });
+			}
+			else if($(th).hasClass(GrappleTable.CSS_TRUNCATE_MOBILE)) {
+				columns.push({ index: i, clamp: GrappleTable.CSS_CLAMP + ' ' + GrappleTable.CSS_CLAMP_MOBILE });
 			}
 		});
 		if(!columns.length) {
@@ -248,18 +254,18 @@ GrappleTable.prototype = {
 			if(cells.length !== headings.length) {
 				return;
 			}
-			$.each(columns, function(j, index) {
-				var cell = cells.eq(index);
+			$.each(columns, function(j, column) {
+				var cell = cells.eq(column.index);
 				// The identifier link is truncated on its own so the paperclip stays outside the clipped text
 				var identifier = cell.find('.grapple-identifier__link');
 				if(identifier.length) {
-					identifier.addClass(GrappleTable.CSS_CLAMP);
+					identifier.addClass(column.clamp);
 					return;
 				}
 				if(cell.find('.' + GrappleTable.CSS_CLAMP + ', ' + GrappleTable.TRUNCATE_SKIP).length) {
 					return;
 				}
-				cell.wrapInner('<div class="' + GrappleTable.CSS_CLAMP + '"></div>');
+				cell.wrapInner('<div class="' + column.clamp + '"></div>');
 			});
 		});
 		this.body.on('mouseenter', '.' + GrappleTable.CSS_CLAMP, function() {

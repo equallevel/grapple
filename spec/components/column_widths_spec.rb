@@ -90,22 +90,39 @@ describe 'column widths' do
 
 	def truncating(cols, strict: true)
 		builder = strict ? strict_builder(cols) : Grapple::DataGridBuilder.new(self, cols, users_records, {})
-		Nokogiri::HTML.fragment(builder.column_headings).css('th').map { |th| th['class'].to_s.split.include?('grapple-truncate') }
+		Nokogiri::HTML.fragment(builder.column_headings).css('th').map do |th|
+			(th['class'].to_s.split & ['grapple-truncate', 'grapple-truncate-mobile']).first
+		end
 	end
 
-	# Values truncate after three lines only where the column can't grow past a set width
+	# Values truncate after three lines only where the column can't grow past a set width. A column
+	# with only a mobile width can grow on desktop, so it truncates only on mobile.
 	it "marks columns with a fixed or maximum width for truncation, for any combination of width options" do
 		random = Random.new(10862)
 		200.times do
 			column = random_width_options(random)
-			bounded = (column[:width] || column[:max_width] || column[:mobile_width]).present?
+			expected = if (column[:width] || column[:max_width]).present?
+				'grapple-truncate'
+			elsif column[:mobile_width].present?
+				'grapple-truncate-mobile'
+			end
 
-			expect(truncating([column])).to eq([bounded]), column.inspect
+			expect(truncating([column])).to eq([expected]), column.inspect
 		end
 	end
 
+	it "marks a column bounded only by mobile_width for mobile truncation" do
+		expect(truncating([{ label: 'Name', mobile_width: 100 }])).to eq(['grapple-truncate-mobile'])
+		expect(truncating([{ label: 'Name', min_width: 50, mobile_width: 100 }])).to eq(['grapple-truncate-mobile'])
+	end
+
+	it "truncates on every screen when a desktop bound is set alongside mobile_width" do
+		expect(truncating([{ label: 'Name', max_width: 200, mobile_width: 100 }])).to eq(['grapple-truncate'])
+		expect(truncating([{ label: 'Name', width: 200, mobile_width: 100 }])).to eq(['grapple-truncate'])
+	end
+
 	it "marks nothing for truncation without strict_widths" do
-		expect(truncating(columns, strict: false)).to eq([false, false, false, false, false])
+		expect(truncating(columns, strict: false)).to eq([nil, nil, nil, nil, nil])
 	end
 
 end
