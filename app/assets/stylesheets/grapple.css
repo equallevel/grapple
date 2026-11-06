@@ -607,9 +607,11 @@
 	padding-left: 12px;
 }
 
+/* End-aligned so a row without a checkbox keeps its 3-dot in line with rows that have one */
 .grapple .grapple-row-controls__items {
 	display: flex;
 	align-items: center;
+	justify-content: flex-end;
 	gap: 16px;
 }
 
