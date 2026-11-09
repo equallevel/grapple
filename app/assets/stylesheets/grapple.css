@@ -630,6 +630,10 @@
 
 .grapple .grapple-identifier__link {
 	color: var(--grapple-text);
+}
+
+/* Without a url the identifier renders as a span and reads as plain text */
+.grapple a.grapple-identifier__link {
 	text-decoration: underline;
 }
 
