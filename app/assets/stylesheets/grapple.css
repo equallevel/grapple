@@ -346,6 +346,13 @@
 	z-index: 2;
 }
 
+/* A filter change reloads the table with its panel still open; fading the toolbar table would
+   make the panel see-through, so only the data table fades */
+.grapple.grapple-loading > .grapple-controls table {
+	opacity: 1;
+	filter: none;
+}
+
 /* Toolbar, 8px, count, 8px, table, 16px, pagination */
 .grapple > .grapple-controls + .grapple-scroll {
 	margin-top: 8px;
@@ -1061,7 +1068,7 @@
 }
 
 /* Filter buttons: multi-selects, single selects, More Filters and the range/date groups */
-.grapple > .grapple-controls tr.toolbar .search-form-component :is(.ms-options-wrap > button, select, [id="more-dropdown"] > .dropdown-toggle, .input-group > .input-group-text, input.form-control:not(.search-query)) {
+.grapple > .grapple-controls tr.toolbar .search-form-component :is(.ms-options-wrap > button, select, [id="more-dropdown"] > .dropdown-toggle, .input-group > .input-group-text, input.form-control:not(.search-query), .ms-search > input) {
 	box-sizing: border-box;
 	height: var(--grapple-control-height);
 	min-height: 0;
@@ -1126,7 +1133,8 @@
 	padding: 0 8px;
 }
 
-.grapple > .grapple-controls tr.toolbar .search-form-component input.form-control:not(.search-query)::placeholder {
+.grapple > .grapple-controls tr.toolbar .search-form-component input.form-control:not(.search-query)::placeholder,
+.grapple > .grapple-controls tr.toolbar .search-form-component .ms-search > input::placeholder {
 	color: var(--grapple-placeholder);
 	opacity: 1;
 }
@@ -1138,7 +1146,7 @@
 	color: var(--grapple-text-muted);
 }
 
-.grapple > .grapple-controls tr.toolbar .search-form-component :is(.ms-options-wrap > button, select, [id="more-dropdown"] > .dropdown-toggle, input.form-control):focus-visible {
+.grapple > .grapple-controls tr.toolbar .search-form-component :is(.ms-options-wrap > button, select, [id="more-dropdown"] > .dropdown-toggle, input.form-control, .ms-search > input):focus-visible {
 	box-shadow: none;
 	outline: 2px solid var(--grapple-focus);
 	outline-offset: 2px;
@@ -1273,7 +1281,13 @@
 	color: var(--grapple-text);
 }
 
+/* Rows don't wrap, so a vertical scrollbar would push the widest one into a sideways scroll */
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options {
+	overflow-x: hidden;
+}
+
 .grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul label,
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-pinned > ul label,
 .grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-selectall,
 .grapple > .grapple-controls tr.toolbar [id="more-dropdown"] > .dropdown-menu > li > .dropdown-item {
 	display: flex;
@@ -1291,12 +1305,15 @@
 	white-space: nowrap;
 }
 
-/* 20+ options get the shorter row */
-.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul:has(> li:nth-child(20)) label {
+/* 20+ options get the shorter row; the search box only renders at 20+, and the count can't be
+   read from the list once selected rows move to .ms-pinned */
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options:has(> .ms-search) ul label,
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options:has(> .ms-search) > .ms-selectall {
 	min-height: 32px;
 }
 
 .grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul li:not(.optgroup):hover,
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-pinned > ul li:not(.optgroup):hover,
 .grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-selectall:hover,
 .grapple > .grapple-controls tr.toolbar [id="more-dropdown"] > .dropdown-menu > li > .dropdown-item:is(:hover, :focus, :active) {
 	background-color: var(--grapple-hover);
@@ -1309,6 +1326,7 @@
 
 /* Select All has no .selected class, so its checkbox marks the state */
 .grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul li.selected:hover,
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-pinned > ul li.selected:hover,
 .grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-selectall:hover:has(> input[type="checkbox"]:checked) {
 	background-color: var(--grapple-selected);
 }
@@ -1340,7 +1358,8 @@
 	Nested optgroup rows have 40px of padding: they pull further and keep equallevel_ui's extra
 	12px text indent.
 */
-.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul label > input[type="checkbox"] {
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul label > input[type="checkbox"],
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-pinned > ul label > input[type="checkbox"] {
 	position: static;
 	top: auto;
 	left: auto;
@@ -1351,6 +1370,34 @@
 .grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul > li.optgroup > ul > li > label > input[type="checkbox"] {
 	margin-left: -32px;
 	margin-right: 20px;
+}
+
+/* Search box and pinned selections on multi-selects with 20+ options. Both stay at the top of the
+   panel while the list scrolls; the pinned block's top is the search block's height. */
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-search {
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	padding: 8px;
+	border-bottom: 1px solid var(--grapple-divider);
+	background-color: #fff;
+}
+
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-search > input {
+	display: block;
+	width: 100%;
+	padding: 0 8px;
+}
+
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-pinned {
+	position: sticky;
+	top: 49px;
+	z-index: 1;
+	max-height: 97px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	border-bottom: 1px solid var(--grapple-divider);
+	background-color: #fff;
 }
 
 /* Native single-select panels, where the browser supports styling them */
