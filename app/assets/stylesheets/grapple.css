@@ -287,6 +287,8 @@
 	--grapple-checkbox-border: #878e9b;
 	--grapple-theme: var(--ui-theme-color, #6145f7);
 	--grapple-theme-text: var(--ui-theme-text-color, var(--grapple-theme));
+	/* Text and icons on a theme fill; hosts set a dark value for light theme colors */
+	--grapple-theme-contrast: var(--ui-theme-contrast-color, #fff);
 	--grapple-theme-hover: color-mix(in srgb, var(--grapple-theme) 80%, #000);
 	--grapple-theme-pressed: color-mix(in srgb, var(--grapple-theme) 60%, #000);
 	--grapple-theme-soft-hover: color-mix(in srgb, var(--grapple-theme) 10%, #fff);
@@ -316,7 +318,8 @@
 	--grapple-icon-chevron-left: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m15 18-6-6 6-6'/%3E%3C/svg%3E");
 	--grapple-icon-chevron-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
 	--grapple-icon-chevrons-up-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E");
-	--grapple-icon-search: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21 21-4.34-4.34'/%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3C/svg%3E");
+	/* The icon can't follow --grapple-theme-contrast, so hosts with a dark contrast color supply their own */
+	--grapple-icon-search: var(--ui-theme-contrast-search-icon, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21 21-4.34-4.34'/%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3C/svg%3E"));
 	--grapple-icon-x: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E");
 	--grapple-icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
 	--grapple-icon-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23292a33' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -1578,19 +1581,19 @@
 
 .grapple > .grapple-controls tr.toolbar > th > .actions > .btn:not(.btn-secondary) {
 	background-color: var(--grapple-theme);
-	color: #fff;
+	color: var(--grapple-theme-contrast);
 }
 
 .grapple > .grapple-controls tr.toolbar > th > .actions > .btn:not(.btn-secondary):is(:hover, :focus-visible) {
 	border-color: var(--grapple-theme-hover);
 	background-color: var(--grapple-theme-hover);
-	color: #fff;
+	color: var(--grapple-theme-contrast);
 }
 
 .grapple > .grapple-controls tr.toolbar > th > .actions > .btn:not(.btn-secondary):is(:active, .show) {
 	border-color: var(--grapple-theme-pressed);
 	background-color: var(--grapple-theme-pressed);
-	color: #fff;
+	color: var(--grapple-theme-contrast);
 }
 
 .grapple > .grapple-controls tr.toolbar > th > .actions > .btn.btn-secondary {
@@ -1699,7 +1702,7 @@
 .grapple > .grapple-pagination .pagination > li.active > :is(a, span),
 .grapple > .grapple-pagination .pagination > em.current {
 	background-color: var(--grapple-theme);
-	color: #fff;
+	color: var(--grapple-theme-contrast);
 }
 
 /* Disabled Previous/Next; the gap ("…") keeps the default look */

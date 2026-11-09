@@ -108,6 +108,22 @@ describe 'grapple.css' do
 		end
 	end
 
+	# Light theme colors need dark text, which the host supplies through --ui-theme-contrast-color
+	it "never paints white text on a theme fill" do
+		themed = css.gsub(%r{/\*.*?\*/}m, '').scan(/([^{}]+)\{([^}]*)\}/)
+			.select { |_, body| body.match?(/background-color: var\(--grapple-theme(-hover|-pressed)?\)/) }
+
+		expect(themed).not_to be_empty
+		themed.each do |selectors, body|
+			expect(body).not_to match(/(?<!-)color: #fff/), selectors.strip
+		end
+		expect(css).to include('--grapple-theme-contrast: var(--ui-theme-contrast-color, #fff)')
+	end
+
+	it "lets the host replace the search icon" do
+		expect(css).to match(/--grapple-icon-search: var\(--ui-theme-contrast-search-icon, url\(/)
+	end
+
 	it "sizes the date dropdown to the selected option where the browser can't" do
 		# Selector lists are kept whole here: the :is() inside them holds a comma
 		selectors = css.gsub(%r{/\*.*?\*/}m, '').scan(/([^{}]+)\{([^}]*)\}/)
