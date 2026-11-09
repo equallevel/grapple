@@ -59,6 +59,51 @@ describe 'will_paginate' do
 		end
 	end
 
+	def page_of_30(page)
+		WillPaginate::Collection.create(page, 1, 30) { |pager| pager.replace([User.first]) }
+	end
+
+	it "pads the compact list to 5 pages on the first page" do
+		html = render_pagination(page_of_30(1))
+
+		expect(html).to have_tag('.grapple-pagination__pages--compact') do
+			with_tag('.current', text: '1')
+			['2', '3', '30'].each { |page| with_tag('a', text: page) }
+			with_tag('.gap', count: 1)
+			without_tag('a', text: '4')
+		end
+	end
+
+	it "pads the compact list to 5 pages on the second page" do
+		html = render_pagination(page_of_30(2))
+
+		expect(html).to have_tag('.grapple-pagination__pages--compact') do
+			['1', '3', '30'].each { |page| with_tag('a', text: page) }
+			with_tag('.current', text: '2')
+			with_tag('.gap', count: 1)
+		end
+	end
+
+	it "pads the compact list to 5 pages on the last page" do
+		html = render_pagination(page_of_30(30))
+
+		expect(html).to have_tag('.grapple-pagination__pages--compact') do
+			['1', '28', '29'].each { |page| with_tag('a', text: page) }
+			with_tag('.current', text: '30')
+			with_tag('.gap', count: 1)
+			without_tag('a', text: '27')
+		end
+	end
+
+	it "shows every page in one list when there are 5 pages or fewer" do
+		records = WillPaginate::Collection.create(1, 1, 5) { |pager| pager.replace([User.first]) }
+		html = render_pagination(records)
+
+		expect(html).to have_tag('.grapple-pagination__pages', count: 1)
+		expect(html).not_to have_tag('.grapple-pagination__pages--compact')
+		['2', '3', '4', '5'].each { |page| expect(html).to have_tag('a', text: page) }
+	end
+
 	it "renders one list when the compact list would be the same" do
 		html = render_pagination(User.all.paginate(page: 1, per_page: 3))
 

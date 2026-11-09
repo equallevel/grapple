@@ -46,13 +46,24 @@ module Grapple
 
 		protected
 
-			# Small screens get first, current and last pages only. CSS shows one list per breakpoint;
-			# the compact list is left out when it would match the full one.
+			# Small screens get 5 page slots (first, current, last and gaps). CSS shows one list per
+			# breakpoint; the compact list is left out when it would match the full one.
 			def page_lists(full_list, options)
-				compact_list = template.will_paginate(records, options.merge(inner_window: 0, outer_window: 0))
-				return "<div class=\"grapple-pagination__pages\">#{full_list}</div>" if compact_list == full_list
+				single_list = "<div class=\"grapple-pagination__pages\">#{full_list}</div>"
+				return single_list if records.total_pages <= 5
+
+				compact_list = template.will_paginate(records, options.merge(compact_window_options))
+				return single_list if compact_list == full_list
 				"<div class=\"grapple-pagination__pages grapple-pagination__pages--full\">#{full_list}</div>" \
 					"<div class=\"grapple-pagination__pages grapple-pagination__pages--compact\">#{compact_list}</div>"
+			end
+
+			# will_paginate shifts the inner window inward at the bounds, so a 1-page window on the first
+			# or last two pages fills 5 slots (1 2 3 … N, 1 … N-2 N-1 N), like 1 … c … N in the middle
+			def compact_window_options
+				page = records.current_page
+				edge = page <= 2 || page >= records.total_pages - 1
+				{ inner_window: edge ? 1 : 0, outer_window: 0 }
 			end
 		
 		end
