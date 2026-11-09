@@ -813,10 +813,11 @@
 /*
 	Ids are written as [id="..."] so the :is() lists below keep class-level specificity.
 
-	The search form is display: contents, so its components and the Actions are all flex items
-	of the toolbar cell. grapple-jquery.js picks the layout: everything on one row, the filters
-	on their own row (--filters-below), or one filter per row (--filters-stacked). Without it the
-	toolbar wraps.
+	Below 761px the search form is display: contents, so its components and the Actions are all
+	flex items of the toolbar cell, and grapple-jquery.js puts the filters on their own row
+	(--filters-below) or one per row (--filters-stacked). At 761px and up the form is its own
+	wrapping row beside the Actions (see the Desktop section), so only the filters that don't fit
+	wrap and the Actions stay on the search row.
 */
 .grapple > .grapple-controls > table > thead > tr.toolbar > th {
 	display: flex;
@@ -1648,6 +1649,21 @@
 
 	.grapple > .grapple-scroll > table > tbody > tr > td.grapple-identifier-cell {
 		padding: 8px 12px;
+	}
+
+	/* The form wraps its own items, so the Actions stay at the right end of the search row */
+	.grapple > .grapple-controls > table > thead > tr.toolbar > th {
+		flex-wrap: nowrap;
+	}
+
+	.grapple > .grapple-controls tr.toolbar form.search-form {
+		display: flex;
+		flex: 1 1 0;
+		flex-wrap: wrap;
+		align-items: flex-start;
+		min-width: 0;
+		column-gap: 8px;
+		row-gap: 8px;
 	}
 
 	.grapple > .grapple-pagination .grapple-pagination__pages--full {

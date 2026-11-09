@@ -285,9 +285,9 @@ GrappleTable.prototype = {
 	},
 
 	/**
-	 * The filters share the search row while they fit, drop to their own row when they don't,
-	 * and stack one per row when they don't fit on one row either. Without ResizeObserver the
-	 * toolbar just wraps.
+	 * At the desktop breakpoint CSS wraps the filters beside the search, so there is nothing to
+	 * measure. Below it the filters go on their own row when they fit on one, and stack one per
+	 * row when they don't. Without ResizeObserver the toolbar just wraps.
 	 */
 	initToolbarLayout: function() {
 		var self = this;
@@ -324,52 +324,31 @@ GrappleTable.prototype = {
 		}
 		// Measure the natural widths in the plain wrapping layout
 		toolbar.removeClass(GrappleTable.CSS_FILTERS_BELOW + ' ' + GrappleTable.CSS_FILTERS_STACKED);
+		if(window.matchMedia(GrappleTable.DESKTOP_QUERY).matches) {
+			return;
+		}
 		var gap = parseFloat(window.getComputedStyle(cell).columnGap) || 0;
 		var available = $(cell).width();
-		var search = [], actions = [], filters = [];
+		var search = GrappleTable.SEARCH_FIELD + ', ' + GrappleTable.SEARCH_SUBMIT;
+		var filters = [];
 		$.each(this._flexItems(cell), function(i, item) {
 			var $item = $(item);
-			if($item.is('#more-filters-row')) {
+			if($item.is('#more-filters-row, .actions, ' + search) || $item.find(search).length) {
 				return;
 			}
-			if($item.is('.actions')) {
-				actions.push(item);
-			}
-			else if($item.is(GrappleTable.SEARCH_FIELD + ', ' + GrappleTable.SEARCH_SUBMIT) ||
-				$item.find(GrappleTable.SEARCH_FIELD + ', ' + GrappleTable.SEARCH_SUBMIT).length) {
-				search.push(item);
-			}
-			else {
-				filters.push(item);
-			}
+			filters.push(item);
 		});
 		if(!filters.length) {
 			return;
 		}
-		// The search field can shrink to fit the row, so it counts at its max-width (its preferred size)
-		var total = function(items) {
-			var sum = 0;
-			$.each(items, function(i, item) {
-				var style = window.getComputedStyle(item);
-				var width = item.getBoundingClientRect().width;
-				var maxWidth = parseFloat(style.maxWidth);
-				if(search.indexOf(item) > -1 && maxWidth > width) {
-					width = maxWidth;
-				}
-				sum += width + parseFloat(style.marginRight);
-				// Actions' auto margin computes to the row's free space, which made every fit a tie
-				if(actions.indexOf(item) === -1) {
-					sum += parseFloat(style.marginLeft);
-				}
-			});
-			return sum + Math.max(items.length - 1, 0) * gap;
-		};
-		// Below the desktop breakpoint the search field always fills its own row
-		var desktop = window.matchMedia(GrappleTable.DESKTOP_QUERY).matches;
-		if(desktop && total(search.concat(filters, actions)) <= available) {
-			return;
-		}
-		toolbar.addClass(total(filters) <= available ? GrappleTable.CSS_FILTERS_BELOW : GrappleTable.CSS_FILTERS_STACKED);
+		var total = 0;
+		$.each(filters, function(i, item) {
+			var style = window.getComputedStyle(item);
+			total += item.getBoundingClientRect().width + parseFloat(style.marginLeft) +
+				parseFloat(style.marginRight);
+		});
+		total += (filters.length - 1) * gap;
+		toolbar.addClass(total <= available ? GrappleTable.CSS_FILTERS_BELOW : GrappleTable.CSS_FILTERS_STACKED);
 	},
 
 	// The boxes a flex container lays out: display: contents children are replaced by their own
