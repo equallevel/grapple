@@ -1268,6 +1268,88 @@
 	mask: var(--grapple-icon-x) center / 16px 16px no-repeat;
 }
 
+/*
+	Date dropdowns are as wide as the selected option. Bootstrap's input-group flex would stretch
+	them across a stacked row. base-select sizes them natively; elsewhere equallevel_ui sets
+	--grapple-select-fit.
+*/
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > select:is(.relative-date, .dropdown-with-range) {
+	flex: 0 0 auto;
+	width: var(--grapple-select-fit, auto);
+}
+
+/* An added date filter without From/To keeps its X next to the dropdown */
+.grapple > .grapple-controls tr.toolbar #more-filters-row > .more-filter-wrapper > .input-group > .search-form-component:has(> .input-group > select:is(.relative-date, .dropdown-with-range) + .range-label[style*="display: none"]) {
+	flex-grow: 0;
+}
+
+.grapple > .grapple-controls tr.toolbar .more-filter-wrapper > .input-group:has(select:is(.relative-date, .dropdown-with-range)) > .remove-more-filter-wrapper {
+	flex-shrink: 0;
+}
+
+/* The From/To inputs' intrinsic width would otherwise push a stacked date filter past the row */
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked form.search-form > .search-form-component:has(> .input-group > select:is(.relative-date, .dropdown-with-range)) {
+	min-width: 0;
+}
+
+/*
+	Wrapped date range, set by layoutToolbar when one row doesn't fit: label, dropdown (and X) on
+	row 1; From and To share row 2 and its top border. The ::after breaks the line. The From/To
+	labels are absolutely positioned, so they take no place in either row.
+*/
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped,
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .more-filter-wrapper > .input-group:has(.grapple-range--wrapped) {
+	flex-wrap: wrap;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped::after {
+	content: '';
+	order: 1;
+	flex: 0 0 100%;
+	height: 0;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped > .input-group-text:first-child {
+	border-radius: var(--grapple-radius-sm) 0 0 0;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped > select:is(.relative-date, .dropdown-with-range) {
+	flex: 1 1 auto;
+	width: auto;
+	border-radius: 0 var(--grapple-radius-sm) 0 0;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped > input.range-input {
+	order: 2;
+	margin-top: -1px;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped > input.range-input.range-from {
+	border-left: 1px solid var(--grapple-control-border);
+	border-radius: 0 0 0 var(--grapple-radius-sm);
+}
+
+/* The id outranks equallevel-grapple.css, which squares the right corners of added date pickers */
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped > input.range-input.range-to,
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked #more-filters-row .search-form-component .input-group.grapple-range--wrapped > input.range-input.range-to {
+	border-radius: 0 0 var(--grapple-radius-sm) 0;
+}
+
+/* Added filter: the wrappers step aside so the X ends row 1 and From/To span the full width */
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .more-filter-wrapper > .input-group:has(.grapple-range--wrapped) > .search-form-component,
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .more-filter-wrapper > .input-group > .search-form-component > .input-group.grapple-range--wrapped {
+	display: contents;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .more-filter-wrapper .search-form-component .input-group.grapple-range--wrapped > select:is(.relative-date, .dropdown-with-range) {
+	border-top-right-radius: 0;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .more-filter-wrapper > .input-group:has(.grapple-range--wrapped) > .remove-more-filter-wrapper {
+	flex: 0 0 auto;
+	border-radius: 0 var(--grapple-radius-sm) 0 0;
+}
+
 /* Option panels: multi-selects and the More Filters menu */
 .grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options,
 .grapple > .grapple-controls tr.toolbar [id="more-dropdown"] > .dropdown-menu {

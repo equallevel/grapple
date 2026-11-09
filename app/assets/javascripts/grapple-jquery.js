@@ -50,6 +50,9 @@ GrappleTable.CSS_SEARCH_FIELD_ERROR = 'grapple-search-field--error';
 GrappleTable.CSS_FILTERS_BELOW = 'grapple-toolbar--filters-below';
 GrappleTable.CSS_FILTERS_STACKED = 'grapple-toolbar--filters-stacked';
 GrappleTable.DESKTOP_QUERY = '(min-width: 761px)';
+GrappleTable.CSS_RANGE_WRAPPED = 'grapple-range--wrapped';
+// The one-row From/To width (grapple.css), below which they move to their own row
+GrappleTable.RANGE_INPUT_MIN_WIDTH = 98;
 GrappleTable.CSS_TRUNCATE = 'grapple-truncate';
 GrappleTable.CSS_TRUNCATE_MOBILE = 'grapple-truncate-mobile';
 GrappleTable.CSS_CLAMP = 'grapple-clamp';
@@ -324,6 +327,7 @@ GrappleTable.prototype = {
 		}
 		// Measure the natural widths in the plain wrapping layout
 		toolbar.removeClass(GrappleTable.CSS_FILTERS_BELOW + ' ' + GrappleTable.CSS_FILTERS_STACKED);
+		toolbar.find('.' + GrappleTable.CSS_RANGE_WRAPPED).removeClass(GrappleTable.CSS_RANGE_WRAPPED);
 		if(window.matchMedia(GrappleTable.DESKTOP_QUERY).matches) {
 			return;
 		}
@@ -348,7 +352,33 @@ GrappleTable.prototype = {
 				parseFloat(style.marginRight);
 		});
 		total += (filters.length - 1) * gap;
-		toolbar.addClass(total <= available ? GrappleTable.CSS_FILTERS_BELOW : GrappleTable.CSS_FILTERS_STACKED);
+		if(total <= available) {
+			toolbar.addClass(GrappleTable.CSS_FILTERS_BELOW);
+			return;
+		}
+		toolbar.addClass(GrappleTable.CSS_FILTERS_STACKED);
+		this._wrapRanges(toolbar, available);
+	},
+
+	// A date range whose label, dropdown, From/To and X don't fit one stacked row wraps From/To
+	_wrapRanges: function(toolbar, available) {
+		toolbar.find('.input-group:has(> select)').each(function(i, group) {
+			var $group = $(group);
+			var inputs = $group.children('.range-input:visible');
+			if(!inputs.length) {
+				return;
+			}
+			var needed = inputs.length * GrappleTable.RANGE_INPUT_MIN_WIDTH;
+			var row = $group.closest('.more-filter-wrapper').children('.input-group');
+			$group.children('.input-group-text:visible, select:visible').add(row.children('button:visible')).each(function(j, el) {
+				if($(el).css('position') !== 'absolute') {
+					needed += el.getBoundingClientRect().width;
+				}
+			});
+			if(needed > available) {
+				$group.addClass(GrappleTable.CSS_RANGE_WRAPPED);
+			}
+		});
 	},
 
 	// The boxes a flex container lays out: display: contents children are replaced by their own
