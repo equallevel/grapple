@@ -45,11 +45,13 @@ GrappleTable.CSS_LOADING_OVERLAY = 'loading-overlay';
 GrappleTable.NON_TABLE_RESPONSE = '<!DOCTYPE html>';
 GrappleTable.SEARCH_FIELD = 'input.search-query';
 GrappleTable.SEARCH_SUBMIT = 'input[type=submit]:not(.reset-button), button[type=submit]:not(.reset-button)';
-GrappleTable.CSS_SEARCH_ERROR = 'grapple-search-error';
-GrappleTable.CSS_SEARCH_FIELD_ERROR = 'grapple-search-field--error';
 GrappleTable.CSS_FILTERS_BELOW = 'grapple-toolbar--filters-below';
 GrappleTable.CSS_FILTERS_STACKED = 'grapple-toolbar--filters-stacked';
 GrappleTable.DESKTOP_QUERY = '(min-width: 761px)';
+GrappleTable.CSS_RANGE_WRAPPED = 'grapple-range--wrapped';
+GrappleTable.CSS_PAGINATION_COMPACT = 'grapple-pagination--compact';
+// The one-row From/To width (grapple.css), below which they move to their own row
+GrappleTable.RANGE_INPUT_MIN_WIDTH = 98;
 GrappleTable.CSS_TRUNCATE = 'grapple-truncate';
 GrappleTable.CSS_TRUNCATE_MOBILE = 'grapple-truncate-mobile';
 GrappleTable.CSS_CLAMP = 'grapple-clamp';
@@ -97,6 +99,7 @@ GrappleTable.prototype = {
 		self.initMenus();
 		self.initTruncation();
 		self.initToolbarLayout();
+		self.initPaginationLayout();
 		self.initPlugins();
 		
 		self.element.removeClass(GrappleTable.CSS_AJAX_LOADING);
@@ -198,14 +201,7 @@ GrappleTable.prototype = {
 			$(elem).on('submit', function(event) {
 				// Don't submit the form
 				event.preventDefault();
-				if(self._isEmptySearch(elem, event)) {
-					self._showSearchError(elem);
-					return;
-				}
 				self.loadTable($(elem).serialize());
-			});
-			$(elem).find(GrappleTable.SEARCH_FIELD).on('input', function() {
-				self._hideSearchError(elem);
 			});
 		});
 		
@@ -285,9 +281,9 @@ GrappleTable.prototype = {
 	},
 
 	/**
-	 * The filters share the search row while they fit, drop to their own row when they don't,
-	 * and stack one per row when they don't fit on one row either. Without ResizeObserver the
-	 * toolbar just wraps.
+	 * At the desktop breakpoint CSS wraps the filters beside the search, so there is nothing to
+	 * measure. Below it the filters go on their own row when they fit on one, and stack one per
+	 * row when they don't. Without ResizeObserver the toolbar just wraps.
 	 */
 	initToolbarLayout: function() {
 		var self = this;
@@ -317,6 +313,47 @@ GrappleTable.prototype = {
 		}
 	},
 
+	/**
+	 * At the desktop breakpoint the full page list shows. When the table is too narrow for it to
+	 * fit on one row, the compact list (first, current and last pages) replaces it.
+	 */
+	initPaginationLayout: function() {
+		var self = this;
+		var pagination = this.element.children('.grapple-pagination');
+		if(this._paginationObserver) {
+			this._paginationObserver.disconnect();
+		}
+		var hasCompact = pagination.find('.grapple-pagination__pages--compact').length > 0;
+		if(!hasCompact || typeof ResizeObserver === 'undefined') {
+			return;
+		}
+		var width = null;
+		this._paginationObserver = new ResizeObserver(function() {
+			var current = pagination.width();
+			if(current === width) {
+				return;
+			}
+			width = current;
+			self.layoutPagination(pagination);
+		});
+		this._paginationObserver.observe(pagination[0]);
+		if(document.fonts && document.fonts.ready) {
+			document.fonts.ready.then(function() { self.layoutPagination(pagination); });
+		}
+	},
+
+	layoutPagination: function(pagination) {
+		// Measure the full list where it shows
+		pagination.removeClass(GrappleTable.CSS_PAGINATION_COMPACT);
+		if(!window.matchMedia(GrappleTable.DESKTOP_QUERY).matches) {
+			return;
+		}
+		var pages = pagination.find('.grapple-pagination__pages--full .pagination').children();
+		if(pages.length && pages.last()[0].offsetTop > pages.first()[0].offsetTop) {
+			pagination.addClass(GrappleTable.CSS_PAGINATION_COMPACT);
+		}
+	},
+
 	layoutToolbar: function(toolbar) {
 		var cell = toolbar.children('th')[0];
 		if(!cell) {
@@ -324,52 +361,58 @@ GrappleTable.prototype = {
 		}
 		// Measure the natural widths in the plain wrapping layout
 		toolbar.removeClass(GrappleTable.CSS_FILTERS_BELOW + ' ' + GrappleTable.CSS_FILTERS_STACKED);
+		toolbar.find('.' + GrappleTable.CSS_RANGE_WRAPPED).removeClass(GrappleTable.CSS_RANGE_WRAPPED);
+		if(window.matchMedia(GrappleTable.DESKTOP_QUERY).matches) {
+			return;
+		}
 		var gap = parseFloat(window.getComputedStyle(cell).columnGap) || 0;
 		var available = $(cell).width();
-		var search = [], actions = [], filters = [];
+		var search = GrappleTable.SEARCH_FIELD + ', ' + GrappleTable.SEARCH_SUBMIT;
+		var filters = [];
 		$.each(this._flexItems(cell), function(i, item) {
 			var $item = $(item);
-			if($item.is('#more-filters-row')) {
+			if($item.is('#more-filters-row, .actions, ' + search) || $item.find(search).length) {
 				return;
 			}
-			if($item.is('.actions')) {
-				actions.push(item);
-			}
-			else if($item.is(GrappleTable.SEARCH_FIELD + ', ' + GrappleTable.SEARCH_SUBMIT) ||
-				$item.find(GrappleTable.SEARCH_FIELD + ', ' + GrappleTable.SEARCH_SUBMIT).length) {
-				search.push(item);
-			}
-			else {
-				filters.push(item);
-			}
+			filters.push(item);
 		});
 		if(!filters.length) {
 			return;
 		}
-		// The search field can shrink to fit the row, so it counts at its max-width (its preferred size)
-		var total = function(items) {
-			var sum = 0;
-			$.each(items, function(i, item) {
-				var style = window.getComputedStyle(item);
-				var width = item.getBoundingClientRect().width;
-				var maxWidth = parseFloat(style.maxWidth);
-				if(search.indexOf(item) > -1 && maxWidth > width) {
-					width = maxWidth;
-				}
-				sum += width + parseFloat(style.marginRight);
-				// Actions' auto margin computes to the row's free space, which made every fit a tie
-				if(actions.indexOf(item) === -1) {
-					sum += parseFloat(style.marginLeft);
-				}
-			});
-			return sum + Math.max(items.length - 1, 0) * gap;
-		};
-		// Below the desktop breakpoint the search field always fills its own row
-		var desktop = window.matchMedia(GrappleTable.DESKTOP_QUERY).matches;
-		if(desktop && total(search.concat(filters, actions)) <= available) {
+		var total = 0;
+		$.each(filters, function(i, item) {
+			var style = window.getComputedStyle(item);
+			total += item.getBoundingClientRect().width + parseFloat(style.marginLeft) +
+				parseFloat(style.marginRight);
+		});
+		total += (filters.length - 1) * gap;
+		if(total <= available) {
+			toolbar.addClass(GrappleTable.CSS_FILTERS_BELOW);
 			return;
 		}
-		toolbar.addClass(total(filters) <= available ? GrappleTable.CSS_FILTERS_BELOW : GrappleTable.CSS_FILTERS_STACKED);
+		toolbar.addClass(GrappleTable.CSS_FILTERS_STACKED);
+		this._wrapRanges(toolbar, available);
+	},
+
+	// A date range whose label, dropdown, From/To and X don't fit one stacked row wraps From/To
+	_wrapRanges: function(toolbar, available) {
+		toolbar.find('.input-group:has(> select)').each(function(i, group) {
+			var $group = $(group);
+			var inputs = $group.children('.range-input:visible');
+			if(!inputs.length) {
+				return;
+			}
+			var needed = inputs.length * GrappleTable.RANGE_INPUT_MIN_WIDTH;
+			var row = $group.closest('.more-filter-wrapper').children('.input-group');
+			$group.children('.input-group-text:visible, select:visible').add(row.children('button:visible')).each(function(j, el) {
+				if($(el).css('position') !== 'absolute') {
+					needed += el.getBoundingClientRect().width;
+				}
+			});
+			if(needed > available) {
+				$group.addClass(GrappleTable.CSS_RANGE_WRAPPED);
+			}
+		});
 	},
 
 	// The boxes a flex container lays out: display: contents children are replaced by their own
@@ -385,46 +428,6 @@ GrappleTable.prototype = {
 			}
 		});
 		return items;
-	},
-
-	/**
-	 * An empty search only counts when it comes from the search field or its button. Filter
-	 * changes submit the same form with no submitter, and Enter in another text filter submits
-	 * with the search button as the submitter, so both still load.
-	 */
-	_isEmptySearch: function(form, event) {
-		var field = $(form).find(GrappleTable.SEARCH_FIELD).first();
-		if(!field.length || $.trim(field.val()) !== '' || !this.element.data('grapple-search-required-message')) {
-			return false;
-		}
-		var submitter = (event.originalEvent || {}).submitter;
-		if(!submitter || $(submitter).is('.reset-button')) {
-			return false;
-		}
-		var active = document.activeElement;
-		var otherField = active && active !== submitter && active !== field[0] && $(active).is(':input');
-		return !(otherField && $.contains(form, active));
-	},
-
-	_showSearchError: function(form) {
-		var field = $(form).find(GrappleTable.SEARCH_FIELD).first();
-		var id = (field.attr('id') || 'query') + '-error';
-		if(!$(form).find('.' + GrappleTable.CSS_SEARCH_ERROR).length) {
-			$('<div role="alert"></div>')
-				.addClass(GrappleTable.CSS_SEARCH_ERROR)
-				.attr('id', id)
-				.text(this.element.data('grapple-search-required-message'))
-				.insertAfter(field);
-		}
-		field.addClass(GrappleTable.CSS_SEARCH_FIELD_ERROR).attr({ 'aria-invalid': 'true', 'aria-describedby': id });
-		field.trigger('focus');
-	},
-
-	_hideSearchError: function(form) {
-		$(form).find('.' + GrappleTable.CSS_SEARCH_ERROR).remove();
-		$(form).find(GrappleTable.SEARCH_FIELD)
-			.removeClass(GrappleTable.CSS_SEARCH_FIELD_ERROR)
-			.removeAttr('aria-invalid aria-describedby');
 	}
 
 };

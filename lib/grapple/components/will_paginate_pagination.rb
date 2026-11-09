@@ -15,6 +15,9 @@ module Grapple
 			setting :renderer, nil
 			setting :inner_window, 2
 			setting :outer_window, 1
+			# Nil keeps will_paginate's own labels ("← Previous", "Next →")
+			setting :previous_label, nil
+			setting :next_label, nil
 
 			# Renders nothing when there is only one page
 			def render(paginate_parameters = {})
@@ -28,7 +31,13 @@ module Grapple
 					td_class = "class='no-results-message text-left'"
 				else
 					paginate_parameters[:param_name] = url_parameter(:page) if builder.namespace
-					options = { renderer: renderer, inner_window: inner_window, outer_window: outer_window }
+					options = {
+						renderer: renderer,
+						inner_window: inner_window,
+						outer_window: outer_window,
+						previous_label: previous_label && t(previous_label),
+						next_label: next_label && t(next_label)
+					}
 					options = options.select { |_, value| !value.nil? }.merge(paginate_parameters)
 					full_list = template.will_paginate(records, options)
 					return '' if full_list.blank?
@@ -46,13 +55,24 @@ module Grapple
 
 		protected
 
-			# Small screens get first, current and last pages only. CSS shows one list per breakpoint;
-			# the compact list is left out when it would match the full one.
+			# Small screens get 5 page slots (first, current, last and gaps). CSS shows one list per
+			# breakpoint; the compact list is left out when it would match the full one.
 			def page_lists(full_list, options)
-				compact_list = template.will_paginate(records, options.merge(inner_window: 0, outer_window: 0))
-				return "<div class=\"grapple-pagination__pages\">#{full_list}</div>" if compact_list == full_list
+				single_list = "<div class=\"grapple-pagination__pages\">#{full_list}</div>"
+				return single_list if records.total_pages <= 5
+
+				compact_list = template.will_paginate(records, options.merge(compact_window_options))
+				return single_list if compact_list == full_list
 				"<div class=\"grapple-pagination__pages grapple-pagination__pages--full\">#{full_list}</div>" \
 					"<div class=\"grapple-pagination__pages grapple-pagination__pages--compact\">#{compact_list}</div>"
+			end
+
+			# will_paginate shifts the inner window inward at the bounds, so a 1-page window on the first
+			# or last two pages fills 5 slots (1 2 3 … N, 1 … N-2 N-1 N), like 1 … c … N in the middle
+			def compact_window_options
+				page = records.current_page
+				edge = page <= 2 || page >= records.total_pages - 1
+				{ inner_window: edge ? 1 : 0, outer_window: 0 }
 			end
 		
 		end

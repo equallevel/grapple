@@ -287,6 +287,8 @@
 	--grapple-checkbox-border: #878e9b;
 	--grapple-theme: var(--ui-theme-color, #6145f7);
 	--grapple-theme-text: var(--ui-theme-text-color, var(--grapple-theme));
+	/* Text and icons on a theme fill; hosts set a dark value for light theme colors */
+	--grapple-theme-contrast: var(--ui-theme-contrast-color, #fff);
 	--grapple-theme-hover: color-mix(in srgb, var(--grapple-theme) 80%, #000);
 	--grapple-theme-pressed: color-mix(in srgb, var(--grapple-theme) 60%, #000);
 	--grapple-theme-soft-hover: color-mix(in srgb, var(--grapple-theme) 10%, #fff);
@@ -316,7 +318,8 @@
 	--grapple-icon-chevron-left: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m15 18-6-6 6-6'/%3E%3C/svg%3E");
 	--grapple-icon-chevron-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
 	--grapple-icon-chevrons-up-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E");
-	--grapple-icon-search: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21 21-4.34-4.34'/%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3C/svg%3E");
+	/* The icon can't follow --grapple-theme-contrast, so hosts with a dark contrast color supply their own */
+	--grapple-icon-search: var(--ui-theme-contrast-search-icon, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21 21-4.34-4.34'/%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3C/svg%3E"));
 	--grapple-icon-x: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E");
 	--grapple-icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
 	--grapple-icon-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23292a33' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -344,6 +347,13 @@
 .grapple > .grapple-controls {
 	position: relative;
 	z-index: 2;
+}
+
+/* A filter change reloads the table with its panel still open; fading the toolbar table would
+   make the panel see-through, so only the data table fades */
+.grapple.grapple-loading > .grapple-controls table {
+	opacity: 1;
+	filter: none;
 }
 
 /* Toolbar, 8px, count, 8px, table, 16px, pagination */
@@ -607,9 +617,11 @@
 	padding-left: 12px;
 }
 
+/* End-aligned so a row without a checkbox keeps its 3-dot in line with rows that have one */
 .grapple .grapple-row-controls__items {
 	display: flex;
 	align-items: center;
+	justify-content: flex-end;
 	gap: 16px;
 }
 
@@ -621,6 +633,10 @@
 
 .grapple .grapple-identifier__link {
 	color: var(--grapple-text);
+}
+
+/* Without a url the identifier renders as a span and reads as plain text */
+.grapple a.grapple-identifier__link {
 	text-decoration: underline;
 }
 
@@ -811,10 +827,11 @@
 /*
 	Ids are written as [id="..."] so the :is() lists below keep class-level specificity.
 
-	The search form is display: contents, so its components and the Actions are all flex items
-	of the toolbar cell. grapple-jquery.js picks the layout: everything on one row, the filters
-	on their own row (--filters-below), or one filter per row (--filters-stacked). Without it the
-	toolbar wraps.
+	Below 761px the search form is display: contents, so its components and the Actions are all
+	flex items of the toolbar cell, and grapple-jquery.js puts the filters on their own row
+	(--filters-below) or one per row (--filters-stacked). At 761px and up the form is its own
+	wrapping row beside the Actions (see the Desktop section), so only the filters that don't fit
+	wrap and the Actions stay on the search row.
 */
 .grapple > .grapple-controls > table > thead > tr.toolbar > th {
 	display: flex;
@@ -1009,21 +1026,6 @@
 	outline-offset: 2px;
 }
 
-/* Empty search (grapple-jquery.js) */
-.grapple > .grapple-controls tr.toolbar input.search-query.grapple-search-field--error {
-	border-color: var(--grapple-danger);
-}
-
-.grapple > .grapple-controls tr.toolbar .grapple-search-error {
-	margin-top: 2px;
-	font-family: var(--grapple-font-family);
-	font-size: 14px;
-	font-weight: 400;
-	line-height: 22px;
-	color: var(--grapple-danger);
-	white-space: normal;
-}
-
 /* Search button: the theme-colored square with a search icon; its label is the accessible name */
 .grapple > .grapple-controls tr.toolbar :is([id="advanced-search-submit"], form.search-form > input[type="submit"]) {
 	display: block;
@@ -1058,7 +1060,7 @@
 }
 
 /* Filter buttons: multi-selects, single selects, More Filters and the range/date groups */
-.grapple > .grapple-controls tr.toolbar .search-form-component :is(.ms-options-wrap > button, select, [id="more-dropdown"] > .dropdown-toggle, .input-group > .input-group-text, input.form-control:not(.search-query)) {
+.grapple > .grapple-controls tr.toolbar .search-form-component :is(.ms-options-wrap > button, select, [id="more-dropdown"] > .dropdown-toggle, .input-group > .input-group-text, input.form-control:not(.search-query), .ms-search > input) {
 	box-sizing: border-box;
 	height: var(--grapple-control-height);
 	min-height: 0;
@@ -1123,7 +1125,8 @@
 	padding: 0 8px;
 }
 
-.grapple > .grapple-controls tr.toolbar .search-form-component input.form-control:not(.search-query)::placeholder {
+.grapple > .grapple-controls tr.toolbar .search-form-component input.form-control:not(.search-query)::placeholder,
+.grapple > .grapple-controls tr.toolbar .search-form-component .ms-search > input::placeholder {
 	color: var(--grapple-placeholder);
 	opacity: 1;
 }
@@ -1135,7 +1138,12 @@
 	color: var(--grapple-text-muted);
 }
 
-.grapple > .grapple-controls tr.toolbar .search-form-component :is(.ms-options-wrap > button, select, [id="more-dropdown"] > .dropdown-toggle, input.form-control):focus-visible {
+/* An added filter's button shows placeholder text ("Select State") until an option is picked */
+.grapple > .grapple-controls tr.toolbar .more-filter-wrapper .search-form-component .ms-options-wrap:not(.ms-has-selections) > button {
+	color: var(--grapple-text-subtle);
+}
+
+.grapple > .grapple-controls tr.toolbar .search-form-component :is(.ms-options-wrap > button, select, [id="more-dropdown"] > .dropdown-toggle, input.form-control, .ms-search > input):focus-visible {
 	box-shadow: none;
 	outline: 2px solid var(--grapple-focus);
 	outline-offset: 2px;
@@ -1149,21 +1157,27 @@
 	width: auto;
 }
 
-.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > * {
+/*
+	The segment :is() mirrors the filter buttons rule's list so these rules outrank its
+	border-radius and border; a bare `> *` would lose to it and round every segment.
+*/
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :is(.input-group-text, select, input.form-control:not(.search-query)) {
 	border-radius: 0;
 	margin: 0;
 }
 
-.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :not(:first-child) {
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :is(.input-group-text, select, input.form-control:not(.search-query)):not(:first-child) {
 	border-left: 0;
 }
 
-.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :first-child {
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :is(.input-group-text, select, input.form-control:not(.search-query)):first-child {
 	border-top-left-radius: var(--grapple-radius-sm);
 	border-bottom-left-radius: var(--grapple-radius-sm);
 }
 
-.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :last-child {
+/* The relative date select ends the group when jQuery's hide() has removed the From/To range */
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :is(.input-group-text, select, input.form-control:not(.search-query)):last-child,
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > select:has(+ .range-label[style*="display: none"]) {
 	border-top-right-radius: var(--grapple-radius-sm);
 	border-bottom-right-radius: var(--grapple-radius-sm);
 }
@@ -1247,6 +1261,88 @@
 	mask: var(--grapple-icon-x) center / 16px 16px no-repeat;
 }
 
+/*
+	Date dropdowns are as wide as the selected option. Bootstrap's input-group flex would stretch
+	them across a stacked row. base-select sizes them natively; elsewhere equallevel_ui sets
+	--grapple-select-fit.
+*/
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > select:is(.relative-date, .dropdown-with-range) {
+	flex: 0 0 auto;
+	width: var(--grapple-select-fit, auto);
+}
+
+/* An added date filter without From/To keeps its X next to the dropdown */
+.grapple > .grapple-controls tr.toolbar #more-filters-row > .more-filter-wrapper > .input-group > .search-form-component:has(> .input-group > select:is(.relative-date, .dropdown-with-range) + .range-label[style*="display: none"]) {
+	flex-grow: 0;
+}
+
+.grapple > .grapple-controls tr.toolbar .more-filter-wrapper > .input-group:has(select:is(.relative-date, .dropdown-with-range)) > .remove-more-filter-wrapper {
+	flex-shrink: 0;
+}
+
+/* The From/To inputs' intrinsic width would otherwise push a stacked date filter past the row */
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked form.search-form > .search-form-component:has(> .input-group > select:is(.relative-date, .dropdown-with-range)) {
+	min-width: 0;
+}
+
+/*
+	Wrapped date range, set by layoutToolbar when one row doesn't fit: label, dropdown (and X) on
+	row 1; From and To share row 2 and its top border. The ::after breaks the line. The From/To
+	labels are absolutely positioned, so they take no place in either row.
+*/
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped,
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .more-filter-wrapper > .input-group:has(.grapple-range--wrapped) {
+	flex-wrap: wrap;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped::after {
+	content: '';
+	order: 1;
+	flex: 0 0 100%;
+	height: 0;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped > .input-group-text:first-child {
+	border-radius: var(--grapple-radius-sm) 0 0 0;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped > select:is(.relative-date, .dropdown-with-range) {
+	flex: 1 1 auto;
+	width: auto;
+	border-radius: 0 var(--grapple-radius-sm) 0 0;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped > input.range-input {
+	order: 2;
+	margin-top: -1px;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped > input.range-input.range-from {
+	border-left: 1px solid var(--grapple-control-border);
+	border-radius: 0 0 0 var(--grapple-radius-sm);
+}
+
+/* The id outranks equallevel-grapple.css, which squares the right corners of added date pickers */
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped > input.range-input.range-to,
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked #more-filters-row .search-form-component .input-group.grapple-range--wrapped > input.range-input.range-to {
+	border-radius: 0 0 var(--grapple-radius-sm) 0;
+}
+
+/* Added filter: the wrappers step aside so the X ends row 1 and From/To span the full width */
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .more-filter-wrapper > .input-group:has(.grapple-range--wrapped) > .search-form-component,
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .more-filter-wrapper > .input-group > .search-form-component > .input-group.grapple-range--wrapped {
+	display: contents;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .more-filter-wrapper .search-form-component .input-group.grapple-range--wrapped > select:is(.relative-date, .dropdown-with-range) {
+	border-top-right-radius: 0;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .more-filter-wrapper > .input-group:has(.grapple-range--wrapped) > .remove-more-filter-wrapper {
+	flex: 0 0 auto;
+	border-radius: 0 var(--grapple-radius-sm) 0 0;
+}
+
 /* Option panels: multi-selects and the More Filters menu */
 .grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options,
 .grapple > .grapple-controls tr.toolbar [id="more-dropdown"] > .dropdown-menu {
@@ -1264,7 +1360,13 @@
 	color: var(--grapple-text);
 }
 
+/* Rows don't wrap, so a vertical scrollbar would push the widest one into a sideways scroll */
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options {
+	overflow-x: hidden;
+}
+
 .grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul label,
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-pinned > ul label,
 .grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-selectall,
 .grapple > .grapple-controls tr.toolbar [id="more-dropdown"] > .dropdown-menu > li > .dropdown-item {
 	display: flex;
@@ -1282,12 +1384,15 @@
 	white-space: nowrap;
 }
 
-/* 20+ options get the shorter row */
-.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul:has(> li:nth-child(20)) label {
+/* 20+ options get the shorter row; the search box only renders at 20+, and the count can't be
+   read from the list once selected rows move to .ms-pinned */
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options:has(> .ms-search) ul label,
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options:has(> .ms-search) > .ms-selectall {
 	min-height: 32px;
 }
 
 .grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul li:not(.optgroup):hover,
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-pinned > ul li:not(.optgroup):hover,
 .grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-selectall:hover,
 .grapple > .grapple-controls tr.toolbar [id="more-dropdown"] > .dropdown-menu > li > .dropdown-item:is(:hover, :focus, :active) {
 	background-color: var(--grapple-hover);
@@ -1300,6 +1405,7 @@
 
 /* Select All has no .selected class, so its checkbox marks the state */
 .grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul li.selected:hover,
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-pinned > ul li.selected:hover,
 .grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-selectall:hover:has(> input[type="checkbox"]:checked) {
 	background-color: var(--grapple-selected);
 }
@@ -1331,7 +1437,8 @@
 	Nested optgroup rows have 40px of padding: they pull further and keep equallevel_ui's extra
 	12px text indent.
 */
-.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul label > input[type="checkbox"] {
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul label > input[type="checkbox"],
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-pinned > ul label > input[type="checkbox"] {
 	position: static;
 	top: auto;
 	left: auto;
@@ -1342,6 +1449,34 @@
 .grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > ul > li.optgroup > ul > li > label > input[type="checkbox"] {
 	margin-left: -32px;
 	margin-right: 20px;
+}
+
+/* Search box and pinned selections on multi-selects with 20+ options. Both stay at the top of the
+   panel while the list scrolls; the pinned block's top is the search block's height. */
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-search {
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	padding: 8px;
+	border-bottom: 1px solid var(--grapple-divider);
+	background-color: #fff;
+}
+
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-search > input {
+	display: block;
+	width: 100%;
+	padding: 0 8px;
+}
+
+.grapple > .grapple-controls tr.toolbar .ms-options-wrap > .ms-options > .ms-pinned {
+	position: sticky;
+	top: 49px;
+	z-index: 1;
+	max-height: 97px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	border-bottom: 1px solid var(--grapple-divider);
+	background-color: #fff;
 }
 
 /* Native single-select panels, where the browser supports styling them */
@@ -1446,19 +1581,19 @@
 
 .grapple > .grapple-controls tr.toolbar > th > .actions > .btn:not(.btn-secondary) {
 	background-color: var(--grapple-theme);
-	color: #fff;
+	color: var(--grapple-theme-contrast);
 }
 
 .grapple > .grapple-controls tr.toolbar > th > .actions > .btn:not(.btn-secondary):is(:hover, :focus-visible) {
 	border-color: var(--grapple-theme-hover);
 	background-color: var(--grapple-theme-hover);
-	color: #fff;
+	color: var(--grapple-theme-contrast);
 }
 
 .grapple > .grapple-controls tr.toolbar > th > .actions > .btn:not(.btn-secondary):is(:active, .show) {
 	border-color: var(--grapple-theme-pressed);
 	background-color: var(--grapple-theme-pressed);
-	color: #fff;
+	color: var(--grapple-theme-contrast);
 }
 
 .grapple > .grapple-controls tr.toolbar > th > .actions > .btn.btn-secondary {
@@ -1567,7 +1702,7 @@
 .grapple > .grapple-pagination .pagination > li.active > :is(a, span),
 .grapple > .grapple-pagination .pagination > em.current {
 	background-color: var(--grapple-theme);
-	color: #fff;
+	color: var(--grapple-theme-contrast);
 }
 
 /* Disabled Previous/Next; the gap ("…") keeps the default look */
@@ -1613,8 +1748,8 @@
 @media (min-width: 761px) {
 	.grapple {
 		--grapple-toolbar-row-break: 8px;
-		--grapple-cell-padding: 16px 12px;
-		--grapple-pinned-padding: 16px;
+		--grapple-cell-padding: 12px;
+		--grapple-pinned-padding: 12px;
 		--grapple-cell-font-size: 14px;
 		--grapple-cell-line-height: 22px;
 	}
@@ -1630,16 +1765,28 @@
 		padding-right: 16px;
 	}
 
+	/* Restates the base padding over the 16px table edge above */
 	.grapple > .grapple-scroll > table > tbody > tr > td.grapple-row-controls {
-		padding: 8px 0 8px 12px;
+		padding: 12px 0 12px 12px;
 	}
 
 	.grapple > .grapple-scroll > table > thead > tr > th.grapple-row-controls-heading {
 		padding-left: 12px;
 	}
 
-	.grapple > .grapple-scroll > table > tbody > tr > td.grapple-identifier-cell {
-		padding: 8px 12px;
+	/* The form wraps its own items, so the Actions stay at the right end of the search row */
+	.grapple > .grapple-controls > table > thead > tr.toolbar > th {
+		flex-wrap: nowrap;
+	}
+
+	.grapple > .grapple-controls tr.toolbar form.search-form {
+		display: flex;
+		flex: 1 1 0;
+		flex-wrap: wrap;
+		align-items: flex-start;
+		min-width: 0;
+		column-gap: 8px;
+		row-gap: 8px;
 	}
 
 	.grapple > .grapple-pagination .grapple-pagination__pages--full {
@@ -1648,6 +1795,15 @@
 
 	.grapple > .grapple-pagination .grapple-pagination__pages--compact {
 		display: none;
+	}
+
+	/* grapple-jquery.js sets this when the full list would wrap onto a second row */
+	.grapple > .grapple-pagination.grapple-pagination--compact .grapple-pagination__pages--full {
+		display: none;
+	}
+
+	.grapple > .grapple-pagination.grapple-pagination--compact .grapple-pagination__pages--compact {
+		display: block;
 	}
 
 	.grapple > .grapple-pagination .pagination > li:is(.prev, .next) > :is(a, span),
