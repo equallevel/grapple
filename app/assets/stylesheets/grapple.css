@@ -1151,21 +1151,27 @@
 	width: auto;
 }
 
-.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > * {
+/*
+	The segment :is() mirrors the filter buttons rule's list so these rules outrank its
+	border-radius and border; a bare `> *` would lose to it and round every segment.
+*/
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :is(.input-group-text, select, input.form-control:not(.search-query)) {
 	border-radius: 0;
 	margin: 0;
 }
 
-.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :not(:first-child) {
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :is(.input-group-text, select, input.form-control:not(.search-query)):not(:first-child) {
 	border-left: 0;
 }
 
-.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :first-child {
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :is(.input-group-text, select, input.form-control:not(.search-query)):first-child {
 	border-top-left-radius: var(--grapple-radius-sm);
 	border-bottom-left-radius: var(--grapple-radius-sm);
 }
 
-.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :last-child {
+/* The relative date select ends the group when jQuery's hide() has removed the From/To range */
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :is(.input-group-text, select, input.form-control:not(.search-query)):last-child,
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > select:has(+ .range-label[style*="display: none"]) {
 	border-top-right-radius: var(--grapple-radius-sm);
 	border-bottom-right-radius: var(--grapple-radius-sm);
 }
