@@ -131,6 +131,17 @@ app/views/posts/index.html.erb
 <% end %>
 ```
 
+The Previous and Next buttons use will_paginate's labels ("← Previous", "Next →") unless the
+builder sets its own. A symbol is translated:
+``` ruby
+class AppTableBuilder < Grapple::DataGridBuilder
+	configure :pagination, previous_label: :previous_page, next_label: :next_page
+end
+```
+
+On a narrow desktop table, the full page list is swapped for the compact one (first, current and
+last pages) whenever it would wrap onto a second row.
+
 ## Filtering/Searching
 TODO
 

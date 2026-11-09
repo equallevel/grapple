@@ -1135,6 +1135,11 @@
 	color: var(--grapple-text-muted);
 }
 
+/* An added filter's button shows placeholder text ("Select State") until an option is picked */
+.grapple > .grapple-controls tr.toolbar .more-filter-wrapper .search-form-component .ms-options-wrap:not(.ms-has-selections) > button {
+	color: var(--grapple-text-subtle);
+}
+
 .grapple > .grapple-controls tr.toolbar .search-form-component :is(.ms-options-wrap > button, select, [id="more-dropdown"] > .dropdown-toggle, input.form-control, .ms-search > input):focus-visible {
 	box-shadow: none;
 	outline: 2px solid var(--grapple-focus);
@@ -1740,8 +1745,8 @@
 @media (min-width: 761px) {
 	.grapple {
 		--grapple-toolbar-row-break: 8px;
-		--grapple-cell-padding: 16px 12px;
-		--grapple-pinned-padding: 16px;
+		--grapple-cell-padding: 12px;
+		--grapple-pinned-padding: 12px;
 		--grapple-cell-font-size: 14px;
 		--grapple-cell-line-height: 22px;
 	}
@@ -1757,16 +1762,13 @@
 		padding-right: 16px;
 	}
 
+	/* Restates the base padding over the 16px table edge above */
 	.grapple > .grapple-scroll > table > tbody > tr > td.grapple-row-controls {
-		padding: 8px 0 8px 12px;
+		padding: 12px 0 12px 12px;
 	}
 
 	.grapple > .grapple-scroll > table > thead > tr > th.grapple-row-controls-heading {
 		padding-left: 12px;
-	}
-
-	.grapple > .grapple-scroll > table > tbody > tr > td.grapple-identifier-cell {
-		padding: 8px 12px;
 	}
 
 	/* The form wraps its own items, so the Actions stay at the right end of the search row */
@@ -1790,6 +1792,15 @@
 
 	.grapple > .grapple-pagination .grapple-pagination__pages--compact {
 		display: none;
+	}
+
+	/* grapple-jquery.js sets this when the full list would wrap onto a second row */
+	.grapple > .grapple-pagination.grapple-pagination--compact .grapple-pagination__pages--full {
+		display: none;
+	}
+
+	.grapple > .grapple-pagination.grapple-pagination--compact .grapple-pagination__pages--compact {
+		display: block;
 	}
 
 	.grapple > .grapple-pagination .pagination > li:is(.prev, .next) > :is(a, span),

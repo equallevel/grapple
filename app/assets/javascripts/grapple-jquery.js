@@ -49,6 +49,7 @@ GrappleTable.CSS_FILTERS_BELOW = 'grapple-toolbar--filters-below';
 GrappleTable.CSS_FILTERS_STACKED = 'grapple-toolbar--filters-stacked';
 GrappleTable.DESKTOP_QUERY = '(min-width: 761px)';
 GrappleTable.CSS_RANGE_WRAPPED = 'grapple-range--wrapped';
+GrappleTable.CSS_PAGINATION_COMPACT = 'grapple-pagination--compact';
 // The one-row From/To width (grapple.css), below which they move to their own row
 GrappleTable.RANGE_INPUT_MIN_WIDTH = 98;
 GrappleTable.CSS_TRUNCATE = 'grapple-truncate';
@@ -98,6 +99,7 @@ GrappleTable.prototype = {
 		self.initMenus();
 		self.initTruncation();
 		self.initToolbarLayout();
+		self.initPaginationLayout();
 		self.initPlugins();
 		
 		self.element.removeClass(GrappleTable.CSS_AJAX_LOADING);
@@ -308,6 +310,47 @@ GrappleTable.prototype = {
 		});
 		if(document.fonts && document.fonts.ready) {
 			document.fonts.ready.then(function() { self.layoutToolbar(toolbar); });
+		}
+	},
+
+	/**
+	 * At the desktop breakpoint the full page list shows. When the table is too narrow for it to
+	 * fit on one row, the compact list (first, current and last pages) replaces it.
+	 */
+	initPaginationLayout: function() {
+		var self = this;
+		var pagination = this.element.children('.grapple-pagination');
+		if(this._paginationObserver) {
+			this._paginationObserver.disconnect();
+		}
+		var hasCompact = pagination.find('.grapple-pagination__pages--compact').length > 0;
+		if(!hasCompact || typeof ResizeObserver === 'undefined') {
+			return;
+		}
+		var width = null;
+		this._paginationObserver = new ResizeObserver(function() {
+			var current = pagination.width();
+			if(current === width) {
+				return;
+			}
+			width = current;
+			self.layoutPagination(pagination);
+		});
+		this._paginationObserver.observe(pagination[0]);
+		if(document.fonts && document.fonts.ready) {
+			document.fonts.ready.then(function() { self.layoutPagination(pagination); });
+		}
+	},
+
+	layoutPagination: function(pagination) {
+		// Measure the full list where it shows
+		pagination.removeClass(GrappleTable.CSS_PAGINATION_COMPACT);
+		if(!window.matchMedia(GrappleTable.DESKTOP_QUERY).matches) {
+			return;
+		}
+		var pages = pagination.find('.grapple-pagination__pages--full .pagination').children();
+		if(pages.length && pages.last()[0].offsetTop > pages.first()[0].offsetTop) {
+			pagination.addClass(GrappleTable.CSS_PAGINATION_COMPACT);
 		}
 	},
 

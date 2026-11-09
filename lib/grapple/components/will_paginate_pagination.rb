@@ -15,6 +15,9 @@ module Grapple
 			setting :renderer, nil
 			setting :inner_window, 2
 			setting :outer_window, 1
+			# Nil keeps will_paginate's own labels ("← Previous", "Next →")
+			setting :previous_label, nil
+			setting :next_label, nil
 
 			# Renders nothing when there is only one page
 			def render(paginate_parameters = {})
@@ -28,7 +31,13 @@ module Grapple
 					td_class = "class='no-results-message text-left'"
 				else
 					paginate_parameters[:param_name] = url_parameter(:page) if builder.namespace
-					options = { renderer: renderer, inner_window: inner_window, outer_window: outer_window }
+					options = {
+						renderer: renderer,
+						inner_window: inner_window,
+						outer_window: outer_window,
+						previous_label: previous_label && t(previous_label),
+						next_label: next_label && t(next_label)
+					}
 					options = options.select { |_, value| !value.nil? }.merge(paginate_parameters)
 					full_list = template.will_paginate(records, options)
 					return '' if full_list.blank?
