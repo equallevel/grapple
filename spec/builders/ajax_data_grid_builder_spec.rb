@@ -16,10 +16,4 @@ describe 'Ajax Data Grid Builder' do
 		expect(attr[:data]['grapple-ajax-url']).to eq '/mock/path'
 	end
 
-	it "container_attributes should include the empty search message" do
-		builder = Grapple::AjaxDataGridBuilder.new(self, [], [], {}, id: 'my_table')
-
-		expect(builder.container_attributes[:data]['grapple-search-required-message']).to eq 'A search term is required'
-	end
-
 end

@@ -45,8 +45,6 @@ GrappleTable.CSS_LOADING_OVERLAY = 'loading-overlay';
 GrappleTable.NON_TABLE_RESPONSE = '<!DOCTYPE html>';
 GrappleTable.SEARCH_FIELD = 'input.search-query';
 GrappleTable.SEARCH_SUBMIT = 'input[type=submit]:not(.reset-button), button[type=submit]:not(.reset-button)';
-GrappleTable.CSS_SEARCH_ERROR = 'grapple-search-error';
-GrappleTable.CSS_SEARCH_FIELD_ERROR = 'grapple-search-field--error';
 GrappleTable.CSS_FILTERS_BELOW = 'grapple-toolbar--filters-below';
 GrappleTable.CSS_FILTERS_STACKED = 'grapple-toolbar--filters-stacked';
 GrappleTable.DESKTOP_QUERY = '(min-width: 761px)';
@@ -201,14 +199,7 @@ GrappleTable.prototype = {
 			$(elem).on('submit', function(event) {
 				// Don't submit the form
 				event.preventDefault();
-				if(self._isEmptySearch(elem, event)) {
-					self._showSearchError(elem);
-					return;
-				}
 				self.loadTable($(elem).serialize());
-			});
-			$(elem).find(GrappleTable.SEARCH_FIELD).on('input', function() {
-				self._hideSearchError(elem);
 			});
 		});
 		
@@ -394,46 +385,6 @@ GrappleTable.prototype = {
 			}
 		});
 		return items;
-	},
-
-	/**
-	 * An empty search only counts when it comes from the search field or its button. Filter
-	 * changes submit the same form with no submitter, and Enter in another text filter submits
-	 * with the search button as the submitter, so both still load.
-	 */
-	_isEmptySearch: function(form, event) {
-		var field = $(form).find(GrappleTable.SEARCH_FIELD).first();
-		if(!field.length || $.trim(field.val()) !== '' || !this.element.data('grapple-search-required-message')) {
-			return false;
-		}
-		var submitter = (event.originalEvent || {}).submitter;
-		if(!submitter || $(submitter).is('.reset-button')) {
-			return false;
-		}
-		var active = document.activeElement;
-		var otherField = active && active !== submitter && active !== field[0] && $(active).is(':input');
-		return !(otherField && $.contains(form, active));
-	},
-
-	_showSearchError: function(form) {
-		var field = $(form).find(GrappleTable.SEARCH_FIELD).first();
-		var id = (field.attr('id') || 'query') + '-error';
-		if(!$(form).find('.' + GrappleTable.CSS_SEARCH_ERROR).length) {
-			$('<div role="alert"></div>')
-				.addClass(GrappleTable.CSS_SEARCH_ERROR)
-				.attr('id', id)
-				.text(this.element.data('grapple-search-required-message'))
-				.insertAfter(field);
-		}
-		field.addClass(GrappleTable.CSS_SEARCH_FIELD_ERROR).attr({ 'aria-invalid': 'true', 'aria-describedby': id });
-		field.trigger('focus');
-	},
-
-	_hideSearchError: function(form) {
-		$(form).find('.' + GrappleTable.CSS_SEARCH_ERROR).remove();
-		$(form).find(GrappleTable.SEARCH_FIELD)
-			.removeClass(GrappleTable.CSS_SEARCH_FIELD_ERROR)
-			.removeAttr('aria-invalid aria-describedby');
 	}
 
 };

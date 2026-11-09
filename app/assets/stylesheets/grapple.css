@@ -1023,21 +1023,6 @@
 	outline-offset: 2px;
 }
 
-/* Empty search (grapple-jquery.js) */
-.grapple > .grapple-controls tr.toolbar input.search-query.grapple-search-field--error {
-	border-color: var(--grapple-danger);
-}
-
-.grapple > .grapple-controls tr.toolbar .grapple-search-error {
-	margin-top: 2px;
-	font-family: var(--grapple-font-family);
-	font-size: 14px;
-	font-weight: 400;
-	line-height: 22px;
-	color: var(--grapple-danger);
-	white-space: normal;
-}
-
 /* Search button: the theme-colored square with a search icon; its label is the accessible name */
 .grapple > .grapple-controls tr.toolbar :is([id="advanced-search-submit"], form.search-form > input[type="submit"]) {
 	display: block;
