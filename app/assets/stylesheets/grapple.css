@@ -400,6 +400,30 @@
 	line-height: 22px;
 }
 
+/*
+	COBRA-10868: with no filters the count shares the Actions row, on the left and level with the
+	bottom of the button. The toolbar is rendered first, so the count is moved ahead of it. Tables
+	without a count are left alone so their toolbar keeps its full width.
+*/
+.grapple > .grapple-controls > table > thead:has(> tr.infobar):not(:has(form.search-form)) {
+	display: flex;
+	align-items: flex-end;
+	column-gap: 8px;
+}
+
+.grapple > .grapple-controls > table > thead:has(> tr.infobar):not(:has(form.search-form)) > tr.infobar {
+	order: -1;
+	flex: 1 1 auto;
+	width: auto;
+	min-width: 0;
+	margin-top: 0;
+}
+
+.grapple > .grapple-controls > table > thead:has(> tr.infobar):not(:has(form.search-form)) > tr.toolbar {
+	flex: none;
+	width: auto;
+}
+
 
 /**************** Data table ****************/
 
