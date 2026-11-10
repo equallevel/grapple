@@ -709,6 +709,20 @@
 	color: var(--grapple-text-subtle);
 }
 
+/* COBRA-11087: a caller's icon 8px after the identifier text (Figma Tables 659:40787), colored by
+   the caller; the paperclip stays at the right edge */
+.grapple .grapple-identifier__label {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+}
+
+.grapple .grapple-identifier__suffix {
+	display: inline-flex;
+	flex: none;
+}
+
 .grapple .grapple-row-select {
 	display: inline-flex;
 	flex: none;

@@ -55,6 +55,32 @@ describe 'identifier cell' do
 		expect(html).to have_tag('span.grapple-identifier__attachment > svg', with: { width: '16', height: '16' })
 	end
 
+	it "puts a caller's suffix right after the identifier, with the paperclip still last" do
+		check = '<span class="default-check" title="Default">✓</span>'.html_safe
+		html = @builder.identifier_cell(label: 'Main Office', url: '/addresses/1', suffix: check, attachments: true)
+
+		expect(html).to have_tag('td.grapple-identifier-cell > div.grapple-identifier') do
+			with_tag('span.grapple-identifier__label > a.grapple-identifier__link + span.grapple-identifier__suffix')
+			with_tag('span.grapple-identifier__suffix > span.default-check', with: { title: 'Default' })
+			with_tag('span.grapple-identifier__label + span.grapple-identifier__attachment')
+		end
+	end
+
+	it "keeps the identifier unwrapped without a suffix" do
+		html = @builder.identifier_cell(label: 'Main Office', url: '/addresses/1')
+
+		expect(html).to have_tag('div.grapple-identifier > a.grapple-identifier__link')
+		expect(html).not_to have_tag('.grapple-identifier__label')
+	end
+
+	it "renders no suffix slot when the suffix is blank" do
+		[nil, ''].each do |suffix|
+			html = @builder.identifier_cell(label: 'Main Office', url: '/addresses/1', suffix: suffix)
+
+			expect(html).not_to have_tag('.grapple-identifier__suffix')
+		end
+	end
+
 	it "needs the table's controls column" do
 		builder = Grapple::DataGridBuilder.new(self, users_columns, users_records, {})
 
