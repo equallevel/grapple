@@ -132,4 +132,39 @@ describe 'grapple.css' do
 		expect(selectors).not_to be_empty
 		expect(selectors).to all(include('select:is(.relative-date, .dropdown-with-range)'))
 	end
+
+	describe "toolbar without filters" do
+		# Tables without a count keep the toolbar row full width so their Actions stay on the right
+		let(:filterless) { 'thead:has(> tr.infobar):not(:has(form.search-form))' }
+		let(:rules) do
+			css.gsub(%r{/\*.*?\*/}m, '').scan(/([^{}]+)\{([^}]*)\}/).select { |selectors, _| selectors.include?(filterless) }
+		end
+
+		def body_for(suffix)
+			rules.select { |selectors, _| selectors.strip.end_with?(suffix) }.map(&:last).join
+		end
+
+		it "puts the count and the Actions on one row" do
+			expect(body_for(filterless)).to include('display: flex')
+		end
+
+		# The toolbar renders before the infobar, but the count belongs on the left
+		it "moves the count before the Actions without the gap that follows a toolbar" do
+			count = body_for('tr.infobar')
+			expect(count).to include('order: -1')
+			expect(count).to include('margin-top: 0')
+		end
+
+		it "lets the toolbar row shrink to its Actions" do
+			expect(body_for('tr.toolbar')).to include('width: auto')
+		end
+
+		it "leaves tables with filters alone and uses no !important" do
+			expect(rules).not_to be_empty
+			rules.each do |selectors, body|
+				expect(selectors).to include(filterless)
+				expect(body).not_to include('!important')
+			end
+		end
+	end
 end
