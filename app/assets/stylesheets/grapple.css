@@ -545,6 +545,11 @@
 	box-shadow: none;
 }
 
+/* The 3-dot cell puts 12px at the left table edge, and the right edge matches it */
+.grapple > .grapple-scroll > table.grapple-has-row-controls > :is(thead, tbody) > tr > :is(th, td):last-child {
+	padding-right: 12px;
+}
+
 .grapple > .grapple-scroll > table.grapple-has-row-controls > :is(thead, tbody) > tr > :is(th, td):nth-child(2) {
 	position: sticky;
 	left: var(--grapple-controls-width);

@@ -87,6 +87,15 @@ describe 'grapple.css' do
 		end
 	end
 
+	# The 3-dot cell puts 12px at the left table edge, and the right edge matches it
+	it "pads the last column of a row-controls table 12px at every width" do
+		selector = '.grapple > .grapple-scroll > table.grapple-has-row-controls > :is(thead, tbody) > tr > ' \
+			':is(th, td):last-child'
+
+		expect(rule_bodies(css.gsub(%r{/\*.*?\*/}m, ''), selector).join).to include('padding-right: 12px')
+		expect(media_blocks('(min-width: 761px)')).not_to include(selector)
+	end
+
 	# Global Components 207:3860: "Select State" in #6d717e until an option is picked
 	it "greys an added filter's placeholder until an option is selected" do
 		selectors = rules_with('color: var(--grapple-text-subtle)')
