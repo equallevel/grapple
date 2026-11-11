@@ -133,6 +133,15 @@ describe 'grapple.css' do
 		expect(selectors).to all(include('select:is(.relative-date, .dropdown-with-range)'))
 	end
 
+	# eql.datepickers puts a hidden value input after each date picker, so it is never :last-child
+	it "rounds the right corners of a date picker that only a hidden input follows" do
+		selector = '.input-group > input.form-control:not(.search-query)' \
+			':where(:has(+ input[type="hidden"]:last-child))'
+		rounded = rules_with('border-top-right-radius: var(--grapple-radius-sm)')
+
+		expect(rounded).to include(a_string_ending_with(selector))
+	end
+
 	describe "toolbar without filters" do
 		# Tables without a count keep the toolbar row full width so their Actions stay on the right
 		let(:filterless) { 'thead:has(> tr.infobar):not(:has(form.search-form))' }

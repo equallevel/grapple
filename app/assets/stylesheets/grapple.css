@@ -1213,9 +1213,14 @@
 	border-bottom-left-radius: var(--grapple-radius-sm);
 }
 
-/* The relative date select ends the group when jQuery's hide() has removed the From/To range */
+/*
+	The relative date select ends the group when jQuery's hide() has removed the From/To range.
+	A date picker ends it when it is followed only by the hidden ISO value input that
+	eql.datepickers inserts. :where() keeps that rule below the wrapped range's corners.
+*/
 .grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :is(.input-group-text, select, input.form-control:not(.search-query)):last-child,
-.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > select:has(+ .range-label[style*="display: none"]) {
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > select:has(+ .range-label[style*="display: none"]),
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > input.form-control:not(.search-query):where(:has(+ input[type="hidden"]:last-child)) {
 	border-top-right-radius: var(--grapple-radius-sm);
 	border-bottom-right-radius: var(--grapple-radius-sm);
 }
