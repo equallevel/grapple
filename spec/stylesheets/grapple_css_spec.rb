@@ -87,6 +87,15 @@ describe 'grapple.css' do
 		end
 	end
 
+	# The 3-dot cell puts 12px at the left table edge, and the right edge matches it
+	it "pads the last column of a row-controls table 12px at every width" do
+		selector = '.grapple > .grapple-scroll > table.grapple-has-row-controls > :is(thead, tbody) > tr > ' \
+			':is(th, td):last-child'
+
+		expect(rule_bodies(css.gsub(%r{/\*.*?\*/}m, ''), selector).join).to include('padding-right: 12px')
+		expect(media_blocks('(min-width: 761px)')).not_to include(selector)
+	end
+
 	# Global Components 207:3860: "Select State" in #6d717e until an option is picked
 	it "greys an added filter's placeholder until an option is selected" do
 		selectors = rules_with('color: var(--grapple-text-subtle)')
@@ -124,6 +133,11 @@ describe 'grapple.css' do
 		expect(css).to match(/--grapple-icon-search: var\(--ui-theme-contrast-search-icon, url\(/)
 	end
 
+	it "draws the search icon as the 16px Bootstrap Icons glyph used by the host's site header" do
+		expect(css[/--grapple-icon-search: [^;]*/]).to include("viewBox='0 0 16 16'", "d='M11.742 10.344")
+		expect(css).to include('var(--grapple-icon-search) center / 16px 16px no-repeat')
+	end
+
 	it "sizes the date dropdown to the selected option where the browser can't" do
 		# Selector lists are kept whole here: the :is() inside them holds a comma
 		selectors = css.gsub(%r{/\*.*?\*/}m, '').scan(/([^{}]+)\{([^}]*)\}/)
@@ -131,6 +145,15 @@ describe 'grapple.css' do
 
 		expect(selectors).not_to be_empty
 		expect(selectors).to all(include('select:is(.relative-date, .dropdown-with-range)'))
+	end
+
+	# eql.datepickers puts a hidden value input after each date picker, so it is never :last-child
+	it "rounds the right corners of a date picker that only a hidden input follows" do
+		selector = '.input-group > input.form-control:not(.search-query)' \
+			':where(:has(+ input[type="hidden"]:last-child))'
+		rounded = rules_with('border-top-right-radius: var(--grapple-radius-sm)')
+
+		expect(rounded).to include(a_string_ending_with(selector))
 	end
 
 	describe "toolbar without filters" do

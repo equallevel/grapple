@@ -318,8 +318,9 @@
 	--grapple-icon-chevron-left: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m15 18-6-6 6-6'/%3E%3C/svg%3E");
 	--grapple-icon-chevron-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
 	--grapple-icon-chevrons-up-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E");
-	/* The icon can't follow --grapple-theme-contrast, so hosts with a dark contrast color supply their own */
-	--grapple-icon-search: var(--ui-theme-contrast-search-icon, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21 21-4.34-4.34'/%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3C/svg%3E"));
+	/* Bootstrap Icons 1.13.1 "search", not Lucide, so it matches the site header's search button.
+	   The icon can't follow --grapple-theme-contrast, so hosts with a dark contrast color supply their own */
+	--grapple-icon-search: var(--ui-theme-contrast-search-icon, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0'/%3E%3C/svg%3E"));
 	--grapple-icon-x: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E");
 	--grapple-icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
 	--grapple-icon-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23292a33' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -542,6 +543,11 @@
 	width: var(--grapple-controls-width);
 	min-width: var(--grapple-controls-width);
 	box-shadow: none;
+}
+
+/* The 3-dot cell puts 12px at the left table edge, and the right edge matches it */
+.grapple > .grapple-scroll > table.grapple-has-row-controls > :is(thead, tbody) > tr > :is(th, td):last-child {
+	padding-right: 12px;
 }
 
 .grapple > .grapple-scroll > table.grapple-has-row-controls > :is(thead, tbody) > tr > :is(th, td):nth-child(2) {
@@ -1083,7 +1089,7 @@
 	overflow: hidden;
 	border: 0;
 	border-radius: 0 var(--grapple-radius-sm) var(--grapple-radius-sm) 0;
-	background: var(--grapple-theme) var(--grapple-icon-search) center / 20px 20px no-repeat;
+	background: var(--grapple-theme) var(--grapple-icon-search) center / 16px 16px no-repeat;
 	box-shadow: none;
 	color: transparent;
 	font-size: 0;
@@ -1221,9 +1227,14 @@
 	border-bottom-left-radius: var(--grapple-radius-sm);
 }
 
-/* The relative date select ends the group when jQuery's hide() has removed the From/To range */
+/*
+	The relative date select ends the group when jQuery's hide() has removed the From/To range.
+	A date picker ends it when it is followed only by the hidden ISO value input that
+	eql.datepickers inserts. :where() keeps that rule below the wrapped range's corners.
+*/
 .grapple > .grapple-controls tr.toolbar .search-form-component .input-group > :is(.input-group-text, select, input.form-control:not(.search-query)):last-child,
-.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > select:has(+ .range-label[style*="display: none"]) {
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > select:has(+ .range-label[style*="display: none"]),
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group > input.form-control:not(.search-query):where(:has(+ input[type="hidden"]:last-child)) {
 	border-top-right-radius: var(--grapple-radius-sm);
 	border-bottom-right-radius: var(--grapple-radius-sm);
 }
