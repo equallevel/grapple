@@ -124,6 +124,11 @@ describe 'grapple.css' do
 		expect(css).to match(/--grapple-icon-search: var\(--ui-theme-contrast-search-icon, url\(/)
 	end
 
+	it "draws the search icon as the 16px Bootstrap Icons glyph used by the host's site header" do
+		expect(css[/--grapple-icon-search: [^;]*/]).to include("viewBox='0 0 16 16'", "d='M11.742 10.344")
+		expect(css).to include('var(--grapple-icon-search) center / 16px 16px no-repeat')
+	end
+
 	it "sizes the date dropdown to the selected option where the browser can't" do
 		# Selector lists are kept whole here: the :is() inside them holds a comma
 		selectors = css.gsub(%r{/\*.*?\*/}m, '').scan(/([^{}]+)\{([^}]*)\}/)
@@ -131,6 +136,15 @@ describe 'grapple.css' do
 
 		expect(selectors).not_to be_empty
 		expect(selectors).to all(include('select:is(.relative-date, .dropdown-with-range)'))
+	end
+
+	# eql.datepickers puts a hidden value input after each date picker, so it is never :last-child
+	it "rounds the right corners of a date picker that only a hidden input follows" do
+		selector = '.input-group > input.form-control:not(.search-query)' \
+			':where(:has(+ input[type="hidden"]:last-child))'
+		rounded = rules_with('border-top-right-radius: var(--grapple-radius-sm)')
+
+		expect(rounded).to include(a_string_ending_with(selector))
 	end
 
 	describe "toolbar without filters" do
