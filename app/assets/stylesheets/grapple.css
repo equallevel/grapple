@@ -559,6 +559,23 @@
 	clip-path: inset(0 -12px 0 0);
 }
 
+/*
+	No row has a checkbox or 3-dot menu, so the controls column collapses and the identifier sits 12px
+	from the table edge. The cell stays in the layout: hiding it would shift the <col> widths by one
+	and break the no-results colspan. :has() re-checks when the body reloads over AJAX.
+*/
+.grapple > .grapple-scroll > table.grapple-has-row-controls:not(:has(> tbody :is(.grapple-row-select, .grapple-row-menu))) {
+	--grapple-controls-width: 0px;
+}
+
+.grapple > .grapple-scroll > table.grapple-has-row-controls:not(:has(> tbody :is(.grapple-row-select, .grapple-row-menu))) > :is(thead, tbody) > tr > :is(th, td):first-child:not([colspan]) {
+	padding: 0;
+}
+
+.grapple > .grapple-scroll > table.grapple-has-row-controls:not(:has(> tbody :is(.grapple-row-select, .grapple-row-menu))) .grapple-row-menu-spacer {
+	display: none;
+}
+
 /* Each pinned cell stacks on its own, so the one with an open row menu goes above the rest */
 .grapple > .grapple-scroll > table > tbody > tr > td:first-child:has(.dropdown-menu.show) {
 	z-index: 3;
