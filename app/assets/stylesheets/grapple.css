@@ -936,6 +936,14 @@
 	order: 12;
 }
 
+/*
+	COBRA-10871: with only a search field there is nothing to clear (Figma 652:39140). Hides the
+	wrapper so the button keeps its reset params; layoutToolbar skips display: none items.
+*/
+.grapple > .grapple-controls tr.toolbar form.search-form:not(:has(> .search-form-component:not(:has(> .search-query, > [id="advanced-search-submit"], > .reset-button)))) > .search-form-component:has(> .reset-button) {
+	display: none;
+}
+
 .grapple > .grapple-controls tr.toolbar #more-filters-row {
 	order: 15;
 	flex: 1 0 100%;

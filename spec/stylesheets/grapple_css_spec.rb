@@ -167,4 +167,30 @@ describe 'grapple.css' do
 			end
 		end
 	end
+
+	# My Reviews (Figma 652:39140): with only a search field there's nothing for Clear Filters to clear
+	describe "search form without filters" do
+		let(:search_only) do
+			'form.search-form:not(:has(> .search-form-component:not(:has(> .search-query, ' \
+				'> [id="advanced-search-submit"], > .reset-button))))'
+		end
+		let(:rules) do
+			css.gsub(%r{/\*.*?\*/}m, '').scan(/([^{}]+)\{([^}]*)\}/).select { |selectors, _| selectors.include?(search_only) }
+		end
+
+		it "hides the Clear Filters wrapper" do
+			hidden = rules.select { |selectors, _| selectors.strip.end_with?('> .search-form-component:has(> .reset-button)') }
+
+			expect(hidden.map(&:last).join).to include('display: none')
+		end
+
+		# The button keeps its reset params in the DOM and layoutToolbar skips display: none items
+		it "hides the wrapper, not the button, and uses no !important" do
+			expect(rules).not_to be_empty
+			rules.each do |selectors, body|
+				expect(selectors.strip).not_to end_with('.reset-button')
+				expect(body).not_to include('!important')
+			end
+		end
+	end
 end
