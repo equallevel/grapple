@@ -124,6 +124,11 @@ describe 'grapple.css' do
 		expect(css).to match(/--grapple-icon-search: var\(--ui-theme-contrast-search-icon, url\(/)
 	end
 
+	it "draws the search icon as the 16px Bootstrap Icons glyph used by the host's site header" do
+		expect(css[/--grapple-icon-search: [^;]*/]).to include("viewBox='0 0 16 16'", "d='M11.742 10.344")
+		expect(css).to include('var(--grapple-icon-search) center / 16px 16px no-repeat')
+	end
+
 	it "sizes the date dropdown to the selected option where the browser can't" do
 		# Selector lists are kept whole here: the :is() inside them holds a comma
 		selectors = css.gsub(%r{/\*.*?\*/}m, '').scan(/([^{}]+)\{([^}]*)\}/)
