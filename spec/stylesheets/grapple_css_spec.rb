@@ -96,6 +96,31 @@ describe 'grapple.css' do
 		expect(media_blocks('(min-width: 761px)')).not_to include(selector)
 	end
 
+	describe "row-controls table with no checkbox or 3-dot menu in any row" do
+		let(:source) { css.gsub(%r{/\*.*?\*/}m, '') }
+		let(:collapsed) do
+			'.grapple > .grapple-scroll > table.grapple-has-row-controls' \
+				':not(:has(> tbody :is(.grapple-row-select, .grapple-row-menu)))'
+		end
+
+		it "collapses the controls column so the identifier starts 12px from the table edge" do
+			table = source.scan(/([^{}]+)\{([^}]*)\}/).select { |selectors, _| selectors.strip == collapsed }
+			expect(table.map(&:last).join).to include('--grapple-controls-width: 0px')
+			cell = "#{collapsed} > :is(thead, tbody) > tr > :is(th, td):first-child:not([colspan])"
+			expect(rule_bodies(source, cell).join).to include('padding: 0')
+			expect(rule_bodies(source, "#{collapsed} .grapple-row-menu-spacer").join).to include('display: none')
+		end
+
+		# A hidden cell would shift the <col> widths by one and break the no-results colspan
+		it "keeps the controls cell in the layout" do
+			rules = source.scan(/([^{}]+)\{([^}]*)\}/).select { |selectors, _| selectors.include?(collapsed) }
+			expect(rules).not_to be_empty
+			rules.select { |_, body| body.include?('display') }.each do |selectors, _|
+				expect(selectors.strip).to end_with('.grapple-row-menu-spacer')
+			end
+		end
+	end
+
 	# Global Components 207:3860: "Select State" in #6d717e until an option is picked
 	it "greys an added filter's placeholder until an option is selected" do
 		selectors = rules_with('color: var(--grapple-text-subtle)')
