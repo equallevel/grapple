@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    grapple (1.0.9)
+    grapple (1.0.10)
       actionpack (>= 4.2.11.1)
       activesupport (>= 4.2.11.1)
 
