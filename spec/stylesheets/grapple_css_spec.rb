@@ -96,6 +96,34 @@ describe 'grapple.css' do
 		expect(media_blocks('(min-width: 761px)')).not_to include(selector)
 	end
 
+	describe "pinned identifier cell in a row-controls table" do
+		let(:source) { css.gsub(%r{/\*.*?\*/}m, '') }
+		let(:cell) do
+			'.grapple > .grapple-scroll > table.grapple-has-row-controls > :is(thead, tbody) > tr > ' \
+				':is(th, td):nth-child(2)'
+		end
+
+		# At fractional zoom (110%) a clip-path edge rounds differently from the cell background,
+		# so a clipped shadow showed as a 1px line between the 3-dot and the identifier
+		it "paints nothing past the cell's left edge" do
+			bodies = source.scan(/([^{}]+)\{([^}]*)\}/).select { |selectors, _| selectors.strip == cell }.map(&:last)
+
+			expect(bodies.join).to include('position: sticky')
+			expect(bodies.join).not_to include('box-shadow')
+			expect(bodies.join).not_to include('clip-path')
+		end
+
+		it "draws the shadow from the cell's right edge only" do
+			edge = rule_bodies(source, "#{cell}::after").join
+
+			expect(edge).to include('position: absolute')
+			expect(edge).to include('left: 100%')
+			expect(edge).to include('pointer-events: none')
+			expect(edge).to include('background: var(--grapple-sticky-edge)')
+			expect(source).to match(/--grapple-sticky-edge: linear-gradient\(to right,/)
+		end
+	end
+
 	describe "row-controls table with no checkbox or 3-dot menu in any row" do
 		let(:source) { css.gsub(%r{/\*.*?\*/}m, '') }
 		let(:collapsed) do

@@ -304,6 +304,8 @@
 	--grapple-radius-md: 6px;
 	--grapple-radius-lg: 8px;
 	--grapple-sticky-shadow: -2px 0 6px rgba(0, 0, 0, 0.15);
+	/* The right-hand falloff of --grapple-sticky-shadow, for the pinned identifier column */
+	--grapple-sticky-edge: linear-gradient(to right, rgba(0, 0, 0, 0.035), rgba(0, 0, 0, 0));
 	/* Toolbar controls (search, filters, Actions) are 32px at every width */
 	--grapple-control-height: 32px;
 	--grapple-toolbar-row-break: 0px;
@@ -554,9 +556,22 @@
 	position: sticky;
 	left: var(--grapple-controls-width);
 	z-index: 1;
-	box-shadow: var(--grapple-sticky-shadow);
-	/* The table edge used to hide the shadow's left half; here it would fall on the controls */
-	clip-path: inset(0 -12px 0 0);
+}
+
+/*
+	The shadow is drawn on the right only, so nothing falls on the controls. Clipping a box-shadow's
+	left half left a 1px line at fractional zoom (110%): the clip edge and the cell background round
+	to different device pixels.
+*/
+.grapple > .grapple-scroll > table.grapple-has-row-controls > :is(thead, tbody) > tr > :is(th, td):nth-child(2)::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 100%;
+	width: 4px;
+	pointer-events: none;
+	background: var(--grapple-sticky-edge);
 }
 
 /*
