@@ -121,13 +121,17 @@ describe 'grapple.css' do
 		end
 	end
 
-	# Global Components 206:124 and the Requisitions frames: 47px header, 51px rows
-	describe "desktop cell padding" do
-		let(:desktop) { media_blocks('(min-width: 761px)') }
+	# Global Components 206:124 and the Requisitions frames: 47px header, 51px rows. The Shopping Lists
+	# 760px frame (652:38705) keeps 12px below 761px too.
+	describe "cell padding" do
+		let(:root) do
+			css.gsub(%r{/\*.*?\*/}m, '').scan(/^\.grapple \{[^}]*\}/).find { |body| body.include?('--grapple-cell-padding') }
+		end
 
-		it "is 12px on every side" do
-			expect(desktop).to include('--grapple-cell-padding: 12px;')
-			expect(desktop).to include('--grapple-pinned-padding: 12px;')
+		it "is 12px on every side at every width" do
+			expect(root).to include('--grapple-cell-padding: 12px;')
+			expect(root).to include('--grapple-pinned-padding: 12px;')
+			expect(css).not_to include('--grapple-cell-padding: 12px 16px')
 		end
 
 		it "keeps 12px above and below the 3-dot and identifier cells at every width" do
@@ -166,15 +170,29 @@ describe 'grapple.css' do
 			expect(bodies.join).not_to include('clip-path')
 		end
 
+		# The clip edge is the cell's right edge, so the shadow never reaches the 3-dot column
 		it "draws the shadow from the cell's right edge only" do
 			edge = rule_bodies(source, "#{cell}::after").join
 
 			expect(edge).to include('position: absolute')
-			expect(edge).to include('left: 100%')
 			expect(edge).to include('pointer-events: none')
-			expect(edge).to include('background: var(--grapple-sticky-edge)')
-			expect(source).to match(/--grapple-sticky-edge: linear-gradient\(to right,/)
+			expect(edge).to include('box-shadow: var(--grapple-sticky-shadow)')
+			expect(edge).to include('clip-path: inset(0 -6px 0 100%)')
+			expect(source).not_to include('--grapple-sticky-edge')
 		end
+	end
+
+	# Figma Tables 652:38705
+	it "shadows the pinned column 2px 0 3px rgba(41, 42, 51, 0.1)" do
+		expect(css).to include('--grapple-sticky-shadow: 2px 0 3px rgba(41, 42, 51, 0.1);')
+	end
+
+	# A block wrapper puts the 24px toggle in a line box, whose strut made the 3-dot cell 26px tall
+	it "keeps the 3-dot menu wrapper out of a line box" do
+		bodies = css.gsub(%r{/\*.*?\*/}m, '').scan(/([^{}]+)\{([^}]*)\}/)
+			.select { |selectors, _| selectors.strip == '.grapple .grapple-row-menu' }.map(&:last)
+
+		expect(bodies.join).to include('display: flex')
 	end
 
 	describe "row-controls table with no checkbox or 3-dot menu in any row" do
