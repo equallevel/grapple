@@ -41,6 +41,37 @@ describe 'grapple.css' do
 		end
 	end
 
+	# Stacked filters span the toolbar, so a date filter with From/To hidden fills its row too
+	describe "stacked date filter without From/To" do
+		let(:hidden_range) { 'select:is(.relative-date, .dropdown-with-range) + .range-label[style*="display: none"]' }
+		let(:stacked_rules) do
+			css.gsub(%r{/\*.*?\*/}m, '').scan(/([^{}]+)\{([^}]*)\}/).select do |selectors, _|
+				selectors.include?('grapple-toolbar--filters-stacked') && selectors.include?('display: none')
+			end
+		end
+
+		it "grows the dropdown to fill the row" do
+			selector = '.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component ' \
+				'.input-group > select:is(.relative-date, .dropdown-with-range):has(+ .range-label[style*="display: none"])'
+			bodies = stacked_rules.select { |selectors, _| selectors.strip == selector }.map(&:last).join
+			expect(bodies).to include('flex: 1 1 auto')
+			expect(bodies).to include('width: auto')
+		end
+
+		it "grows an added filter so its X ends the row" do
+			bodies = stacked_rules.select { |selectors, _| selectors.include?('#more-filters-row') && selectors.include?(hidden_range) }
+				.map(&:last).join
+			expect(bodies).to include('flex-grow: 1')
+		end
+
+		it "leaves display alone and uses no !important" do
+			bodies = stacked_rules.map(&:last).join
+			expect(bodies).not_to be_empty
+			expect(bodies).not_to match(/(^|[\s;])display:/)
+			expect(bodies).not_to include('!important')
+		end
+	end
+
 	# Contents of every @media block with this condition, comments removed
 	def media_blocks(condition)
 		source = css.gsub(%r{/\*.*?\*/}m, '')
@@ -66,6 +97,28 @@ describe 'grapple.css' do
 
 	def rule_bodies(source, selector_part)
 		source.scan(/([^{}]+)\{([^}]*)\}/).select { |selectors, _| selectors.include?(selector_part) }.map(&:last)
+	end
+
+	# Figma's 760px and 360px table frames keep p-small's 22px heading line height, while body cells
+	# drop to 1.5 below 761px
+	describe "column heading line height" do
+		let(:source) { css.gsub(%r{/\*.*?\*/}m, '') }
+		let(:heading) { '.grapple > .grapple-scroll > table > thead > tr > th' }
+
+		it "is 22px by default, apart from the cell line height" do
+			root = source.scan(/^\.grapple \{[^}]*\}/).find { |body| body.include?('--grapple-cell-line-height') }
+			expect(root).to include('--grapple-heading-line-height: 22px;')
+			expect(root).to include('--grapple-cell-line-height: 1.5;')
+		end
+
+		it "applies to the column headings" do
+			bodies = source.scan(/([^{}]+)\{([^}]*)\}/).select { |selectors, _| selectors.strip == heading }.map(&:last)
+			expect(bodies.join).to include('line-height: var(--grapple-heading-line-height)')
+		end
+
+		it "stays the same on desktop" do
+			expect(media_blocks('(min-width: 761px)')).not_to include('--grapple-heading-line-height')
+		end
 	end
 
 	# Global Components 206:124 and the Requisitions frames: 47px header, 51px rows

@@ -313,6 +313,8 @@
 	--grapple-pinned-padding: 12px;
 	--grapple-cell-font-size: 12px;
 	--grapple-cell-line-height: 1.5;
+	/* Headings keep 22px below 761px, where body cells drop to 1.5 */
+	--grapple-heading-line-height: 22px;
 	--grapple-menu-toggle-size: 24px;
 
 	/* Lucide icons (lucide-rails 0.7.4), used as masks so they take the element's color */
@@ -473,6 +475,7 @@
 
 .grapple > .grapple-scroll > table > thead > tr > th {
 	font-weight: 600;
+	line-height: var(--grapple-heading-line-height);
 	background-color: var(--grapple-header-bg);
 }
 
@@ -1353,7 +1356,7 @@
 /*
 	Date dropdowns are as wide as the selected option. Bootstrap's input-group flex would stretch
 	them across a stacked row. base-select sizes them natively; elsewhere equallevel_ui sets
-	--grapple-select-fit.
+	--grapple-select-fit. Stacked rows without From/To are the exception: they fill the row.
 */
 .grapple > .grapple-controls tr.toolbar .search-form-component .input-group > select:is(.relative-date, .dropdown-with-range) {
 	flex: 0 0 auto;
@@ -1367,6 +1370,16 @@
 
 .grapple > .grapple-controls tr.toolbar .more-filter-wrapper > .input-group:has(select:is(.relative-date, .dropdown-with-range)) > .remove-more-filter-wrapper {
 	flex-shrink: 0;
+}
+
+/* Stacked filters span the toolbar; with From/To hidden the dropdown (and an added filter's X) does */
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group > select:is(.relative-date, .dropdown-with-range):has(+ .range-label[style*="display: none"]) {
+	flex: 1 1 auto;
+	width: auto;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked #more-filters-row > .more-filter-wrapper > .input-group > .search-form-component:has(> .input-group > select:is(.relative-date, .dropdown-with-range) + .range-label[style*="display: none"]) {
+	flex-grow: 1;
 }
 
 /* The From/To inputs' intrinsic width would otherwise push a stacked date filter past the row */
