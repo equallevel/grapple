@@ -313,6 +313,8 @@
 	--grapple-pinned-padding: 12px;
 	--grapple-cell-font-size: 12px;
 	--grapple-cell-line-height: 1.5;
+	/* Headings keep 22px below 761px, where body cells drop to 1.5 */
+	--grapple-heading-line-height: 22px;
 	--grapple-menu-toggle-size: 24px;
 
 	/* Lucide icons (lucide-rails 0.7.4), used as masks so they take the element's color */
@@ -473,6 +475,7 @@
 
 .grapple > .grapple-scroll > table > thead > tr > th {
 	font-weight: 600;
+	line-height: var(--grapple-heading-line-height);
 	background-color: var(--grapple-header-bg);
 }
 
@@ -905,9 +908,10 @@
 
 	Below 761px the search form is display: contents, so its components and the Actions are all
 	flex items of the toolbar cell, and grapple-jquery.js puts the filters on their own row
-	(--filters-below) or one per row (--filters-stacked). At 761px and up the form is its own
-	wrapping row beside the Actions (see the Desktop section), so only the filters that don't fit
-	wrap and the Actions stay on the search row.
+	(--filters-below) or one per row (--filters-stacked). At 761px and up the filters share the
+	search row while they fit beside the Actions; when any of them wraps, grapple-jquery.js
+	applies the same two classes and the form goes back to display: contents (see the Desktop
+	section), so the filters move below as a group.
 */
 .grapple > .grapple-controls > table > thead > tr.toolbar > th {
 	display: flex;
@@ -1353,7 +1357,7 @@
 /*
 	Date dropdowns are as wide as the selected option. Bootstrap's input-group flex would stretch
 	them across a stacked row. base-select sizes them natively; elsewhere equallevel_ui sets
-	--grapple-select-fit.
+	--grapple-select-fit. Stacked rows without From/To are the exception: they fill the row.
 */
 .grapple > .grapple-controls tr.toolbar .search-form-component .input-group > select:is(.relative-date, .dropdown-with-range) {
 	flex: 0 0 auto;
@@ -1367,6 +1371,16 @@
 
 .grapple > .grapple-controls tr.toolbar .more-filter-wrapper > .input-group:has(select:is(.relative-date, .dropdown-with-range)) > .remove-more-filter-wrapper {
 	flex-shrink: 0;
+}
+
+/* Stacked filters span the toolbar; with From/To hidden the dropdown (and an added filter's X) does */
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group > select:is(.relative-date, .dropdown-with-range):has(+ .range-label[style*="display: none"]) {
+	flex: 1 1 auto;
+	width: auto;
+}
+
+.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked #more-filters-row > .more-filter-wrapper > .input-group > .search-form-component:has(> .input-group > select:is(.relative-date, .dropdown-with-range) + .range-label[style*="display: none"]) {
+	flex-grow: 1;
 }
 
 /* The From/To inputs' intrinsic width would otherwise push a stacked date filter past the row */
@@ -1876,6 +1890,15 @@
 		min-width: 0;
 		column-gap: 8px;
 		row-gap: 8px;
+	}
+
+	/* Filters that don't fit beside the search drop as a group, laid out by the base toolbar rules */
+	.grapple > .grapple-controls > table > thead > tr.toolbar:is(.grapple-toolbar--filters-below, .grapple-toolbar--filters-stacked) > th {
+		flex-wrap: wrap;
+	}
+
+	.grapple > .grapple-controls tr.toolbar:is(.grapple-toolbar--filters-below, .grapple-toolbar--filters-stacked) form.search-form {
+		display: contents;
 	}
 
 	.grapple > .grapple-pagination .grapple-pagination__pages--full {
