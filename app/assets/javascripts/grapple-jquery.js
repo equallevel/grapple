@@ -281,9 +281,9 @@ GrappleTable.prototype = {
 	},
 
 	/**
-	 * At the desktop breakpoint the filters share the search row while they all fit beside the
-	 * Actions. Otherwise, and always below it, they go on their own row when they fit on one, and
-	 * stack one per row when they don't. Without ResizeObserver the toolbar just wraps.
+	 * At the desktop breakpoint CSS wraps the filters beside the search, so there is nothing to
+	 * measure. Below it the filters go on their own row when they fit on one, and stack one per
+	 * row when they don't. Without ResizeObserver the toolbar just wraps.
 	 */
 	initToolbarLayout: function() {
 		var self = this;
@@ -362,17 +362,14 @@ GrappleTable.prototype = {
 		// Measure the natural widths in the plain wrapping layout
 		toolbar.removeClass(GrappleTable.CSS_FILTERS_BELOW + ' ' + GrappleTable.CSS_FILTERS_STACKED);
 		toolbar.find('.' + GrappleTable.CSS_RANGE_WRAPPED).removeClass(GrappleTable.CSS_RANGE_WRAPPED);
-		var self = this;
+		if(window.matchMedia(GrappleTable.DESKTOP_QUERY).matches) {
+			return;
+		}
 		var gap = parseFloat(window.getComputedStyle(cell).columnGap) || 0;
 		var available = $(cell).width();
 		var search = GrappleTable.SEARCH_FIELD + ', ' + GrappleTable.SEARCH_SUBMIT;
-		// At the desktop breakpoint the form is a flex box of its own; its items are what wrap
-		var items = [];
-		$.each(this._flexItems(cell), function(i, item) {
-			items = items.concat($(item).is('form.search-form') ? self._flexItems(item) : [item]);
-		});
 		var filters = [];
-		$.each(items, function(i, item) {
+		$.each(this._flexItems(cell), function(i, item) {
 			var $item = $(item);
 			if($item.is('#more-filters-row, .actions, ' + search) || $item.find(search).length) {
 				return;
@@ -380,9 +377,6 @@ GrappleTable.prototype = {
 			filters.push(item);
 		});
 		if(!filters.length) {
-			return;
-		}
-		if(window.matchMedia(GrappleTable.DESKTOP_QUERY).matches && !this._anyWrapped(items, filters)) {
 			return;
 		}
 		var total = 0;
@@ -419,16 +413,6 @@ GrappleTable.prototype = {
 				$group.addClass(GrappleTable.CSS_RANGE_WRAPPED);
 			}
 		});
-	},
-
-	// Whether any filter sits below the toolbar's first row
-	_anyWrapped: function(items, filters) {
-		var top = Math.min.apply(null, $.map(items, function(item) {
-			return item.getBoundingClientRect().top;
-		}));
-		return $.grep(filters, function(item) {
-			return item.getBoundingClientRect().top - top > 1;
-		}).length > 0;
 	},
 
 	// The boxes a flex container lays out: display: contents children are replaced by their own

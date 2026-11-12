@@ -211,22 +211,6 @@ describe 'grapple.css' do
 		))
 	end
 
-	# COBRA-11202: filters that don't fit beside the search drop to their own row as a group
-	describe "desktop toolbar with filters below or stacked" do
-		let(:desktop) { media_blocks('(min-width: 761px)') }
-		let(:layouts) { ':is(.grapple-toolbar--filters-below, .grapple-toolbar--filters-stacked)' }
-
-		it "lays the form's items out in the toolbar cell, as below 761px" do
-			bodies = rule_bodies(desktop, "tr.toolbar#{layouts} form.search-form").join
-			expect(bodies).to include('display: contents')
-		end
-
-		it "lets the toolbar cell wrap" do
-			bodies = rule_bodies(desktop, "tr.toolbar#{layouts} > th").join
-			expect(bodies).to include('flex-wrap: wrap')
-		end
-	end
-
 	describe "pagination too wide for one row" do
 		let(:desktop) { media_blocks('(min-width: 761px)') }
 
