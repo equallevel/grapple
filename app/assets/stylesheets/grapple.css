@@ -1907,8 +1907,20 @@
 	.grapple > .grapple-pagination .pagination > li:is(.prev, .next) > :is(a, span),
 	.grapple > .grapple-pagination .pagination > :is(.previous_page, .next_page) {
 		width: auto;
-		padding: 8px 10px;
+		/* 9px + the 1px border: Figma's 10px inset has its stroke inside the box */
+		padding: 8px 9px;
 		font-size: 16px;
+	}
+
+	/* Figma's widths, whose label boxes round up; longer translations grow past them */
+	.grapple > .grapple-pagination .pagination > li.prev > :is(a, span),
+	.grapple > .grapple-pagination .pagination > .previous_page {
+		min-width: 85px;
+	}
+
+	.grapple > .grapple-pagination .pagination > li.next > :is(a, span),
+	.grapple > .grapple-pagination .pagination > .next_page {
+		min-width: 57px;
 	}
 
 	.grapple > .grapple-pagination .pagination > li:is(.prev, .next) > :is(a, span)::before,
