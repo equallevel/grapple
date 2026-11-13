@@ -241,6 +241,26 @@ describe 'grapple.css' do
 		end
 	end
 
+	# Figma's Previous/Next are text + 10px each side with the stroke inside; the 1px border counts
+	it "keeps the desktop Previous and Next text 10px from the button edge, border included" do
+		selector = '.pagination > :is(.previous_page, .next_page)'
+		paddings = rule_bodies(media_blocks('(min-width: 761px)'), selector)
+			.flat_map { |body| body.scan(/padding:\s*([^;]+);/).flatten }
+
+		expect(paddings).to eq(['8px 9px'])
+	end
+
+	# Figma rounds the label boxes up (85px and 57px); a minimum keeps longer translations growing
+	it "gives the desktop Previous and Next buttons Figma's widths as minimums" do
+		desktop = media_blocks('(min-width: 761px)')
+		previous = rule_bodies(desktop, '.pagination > .previous_page').join
+		next_page = rule_bodies(desktop, '.pagination > .next_page').join
+
+		expect(previous).to include('min-width: 85px')
+		expect(next_page).to include('min-width: 57px')
+		expect(previous + next_page).not_to match(/(?<!-)width: (85|57)px/)
+	end
+
 	# Light theme colors need dark text, which the host supplies through --ui-theme-contrast-color
 	it "never paints white text on a theme fill" do
 		themed = css.gsub(%r{/\*.*?\*/}m, '').scan(/([^{}]+)\{([^}]*)\}/)
