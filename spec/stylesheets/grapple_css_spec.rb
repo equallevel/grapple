@@ -39,6 +39,44 @@ describe 'grapple.css' do
 		it "uses no !important" do
 			expect(wrapped_rules.map(&:last).join).not_to include('!important')
 		end
+
+		# layoutToolbar also wraps a range too wide for its row on desktop and between 501 and 760px
+		it "applies whether or not the filters are stacked" do
+			wrapped_rules.each do |selectors, _|
+				expect(selectors).not_to include('grapple-toolbar--filters-stacked')
+			end
+		end
+
+		it "spans its row, with From and To sharing the second row" do
+			component = wrapped_rules.find { |selectors, _| selectors.include?('form.search-form > .search-form-component:has(') }
+			added = wrapped_rules.find { |selectors, _| selectors.strip.end_with?('.more-filter-wrapper:has(.grapple-range--wrapped)') }
+			inputs = wrapped_rules.find { |selectors, _| selectors.include?('> :is(.range-input, .date-picker)') }
+			expect(component.last).to include('flex: 1 0 100%')
+			expect(added.last).to include('width: 100%')
+			expect(inputs.last).to include('flex: 1 1 0')
+		end
+	end
+
+	# Desktop: filters past the search row follow the Actions, so their rows span the toolbar
+	describe "desktop toolbar rows" do
+		let(:source) { css.gsub(%r{/\*.*?\*/}m, '') }
+		let(:form) { '.grapple > .grapple-controls tr.toolbar form.search-form' }
+
+		it "keeps the search form display: contents at every width" do
+			expect(media_blocks('(min-width: 761px)')).not_to include(form + ' {')
+		end
+
+		it "orders next-row filters after the Actions and before the added filters" do
+			order = lambda do |selector|
+				source.scan(/([^{}]+)\{([^}]*)\}/).find { |selectors, _| selectors.strip == selector }.last[/order: (\d+)/, 1].to_i
+			end
+			actions = order.call('.grapple > .grapple-controls tr.toolbar > th > .actions')
+			next_rows = source.scan(/\.grapple-toolbar__next-row[^{]*\{[^}]*order: (\d+)/).flatten.map(&:to_i)
+			added = order.call('.grapple > .grapple-controls tr.toolbar #more-filters-row')
+			expect(next_rows.size).to eq(3)
+			expect(next_rows).to all(be > actions)
+			expect(next_rows).to all(be < added)
+		end
 	end
 
 	# Stacked filters span the toolbar, so a date filter with From/To hidden fills its row too
