@@ -48,7 +48,10 @@ GrappleTable.SEARCH_SUBMIT = 'input[type=submit]:not(.reset-button), button[type
 GrappleTable.CSS_FILTERS_BELOW = 'grapple-toolbar--filters-below';
 GrappleTable.CSS_FILTERS_STACKED = 'grapple-toolbar--filters-stacked';
 GrappleTable.DESKTOP_QUERY = '(min-width: 761px)';
+// Filters that don't fit one row stack one per row only at this width; above it they wrap
+GrappleTable.STACKED_QUERY = '(max-width: 500px)';
 GrappleTable.CSS_RANGE_WRAPPED = 'grapple-range--wrapped';
+GrappleTable.CSS_NEXT_ROW = 'grapple-toolbar__next-row';
 GrappleTable.CSS_PAGINATION_COMPACT = 'grapple-pagination--compact';
 // The one-row From/To width (grapple.css), below which they move to their own row
 GrappleTable.RANGE_INPUT_MIN_WIDTH = 98;
@@ -281,9 +284,10 @@ GrappleTable.prototype = {
 	},
 
 	/**
-	 * At the desktop breakpoint CSS wraps the filters beside the search, so there is nothing to
-	 * measure. Below it the filters go on their own row when they fit on one, and stack one per
-	 * row when they don't. Without ResizeObserver the toolbar just wraps.
+	 * At the desktop breakpoint the filters wrap beside the search. Below it the filters go
+	 * on their own row; when they don't fit on one they wrap, or stack one per row at the stacked
+	 * breakpoint. At any width a date range too wide for its row moves From/To to a second row.
+	 * Without ResizeObserver the toolbar just wraps.
 	 */
 	initToolbarLayout: function() {
 		var self = this;
@@ -362,9 +366,8 @@ GrappleTable.prototype = {
 		// Measure the natural widths in the plain wrapping layout
 		toolbar.removeClass(GrappleTable.CSS_FILTERS_BELOW + ' ' + GrappleTable.CSS_FILTERS_STACKED);
 		toolbar.find('.' + GrappleTable.CSS_RANGE_WRAPPED).removeClass(GrappleTable.CSS_RANGE_WRAPPED);
-		if(window.matchMedia(GrappleTable.DESKTOP_QUERY).matches) {
-			return;
-		}
+		toolbar.find('.' + GrappleTable.CSS_NEXT_ROW).removeClass(GrappleTable.CSS_NEXT_ROW);
+		var self = this;
 		var gap = parseFloat(window.getComputedStyle(cell).columnGap) || 0;
 		var available = $(cell).width();
 		var search = GrappleTable.SEARCH_FIELD + ', ' + GrappleTable.SEARCH_SUBMIT;
@@ -376,25 +379,67 @@ GrappleTable.prototype = {
 			}
 			filters.push(item);
 		});
+		if(window.matchMedia(GrappleTable.DESKTOP_QUERY).matches) {
+			this._wrapRanges(toolbar, available);
+			this._fillSearchRow(cell, filters, gap);
+			return;
+		}
 		if(!filters.length) {
 			return;
 		}
-		var total = 0;
+		var total = (filters.length - 1) * gap;
 		$.each(filters, function(i, item) {
-			var style = window.getComputedStyle(item);
-			total += item.getBoundingClientRect().width + parseFloat(style.marginLeft) +
-				parseFloat(style.marginRight);
+			total += self._outerWidth(item);
 		});
-		total += (filters.length - 1) * gap;
 		if(total <= available) {
 			toolbar.addClass(GrappleTable.CSS_FILTERS_BELOW);
 			return;
 		}
-		toolbar.addClass(GrappleTable.CSS_FILTERS_STACKED);
+		var stacked = window.matchMedia(GrappleTable.STACKED_QUERY).matches;
+		toolbar.addClass(stacked ? GrappleTable.CSS_FILTERS_STACKED : GrappleTable.CSS_FILTERS_BELOW);
 		this._wrapRanges(toolbar, available);
 	},
 
-	// A date range whose label, dropdown, From/To and X don't fit one stacked row wraps From/To
+	/**
+	 * Desktop: the filters that fit beside the search and the Actions share their row. The rest
+	 * move after the Actions, so the rows below span the toolbar.
+	 */
+	_fillSearchRow: function(cell, filters, gap) {
+		var self = this;
+		var actions = $(cell).children('.actions').filter(':visible')[0];
+		if(!actions || !filters.length) {
+			return;
+		}
+		// Not _outerWidth: the Actions' auto margin resolves to the row's free space
+		var used = actions.getBoundingClientRect().width;
+		$.each(this._flexItems(cell), function(i, item) {
+			if(item !== actions && filters.indexOf(item) < 0 && item.id !== 'more-filters-row') {
+				used += gap + self._outerWidth(item);
+			}
+		});
+		var room = $(cell).width();
+		var full = false;
+		// Filters lay out in CSS order (filters, More Filters, Clear Filters), not DOM order
+		var ordered = filters.slice().sort(function(a, b) {
+			return (parseFloat(window.getComputedStyle(a).order) || 0) -
+				(parseFloat(window.getComputedStyle(b).order) || 0);
+		});
+		$.each(ordered, function(i, item) {
+			used += gap + self._outerWidth(item);
+			full = full || used > room;
+			if(full) {
+				$(item).addClass(GrappleTable.CSS_NEXT_ROW);
+			}
+		});
+	},
+
+	_outerWidth: function(item) {
+		var style = window.getComputedStyle(item);
+		return item.getBoundingClientRect().width + parseFloat(style.marginLeft) +
+			parseFloat(style.marginRight);
+	},
+
+	// A date range whose label, dropdown, From/To and X don't fit one row wraps From/To
 	_wrapRanges: function(toolbar, available) {
 		toolbar.find('.input-group:has(> select)').each(function(i, group) {
 			var $group = $(group);

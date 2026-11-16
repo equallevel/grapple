@@ -904,11 +904,11 @@
 /*
 	Ids are written as [id="..."] so the :is() lists below keep class-level specificity.
 
-	Below 761px the search form is display: contents, so its components and the Actions are all
-	flex items of the toolbar cell, and grapple-jquery.js puts the filters on their own row
-	(--filters-below) or one per row (--filters-stacked). At 761px and up the form is its own
-	wrapping row beside the Actions (see the Desktop section), so only the filters that don't fit
-	wrap and the Actions stay on the search row.
+	The search form is display: contents, so its components and the Actions are all flex items of
+	the toolbar cell. Below 761px grapple-jquery.js puts the filters on their own row
+	(--filters-below) or one per row (--filters-stacked). At 761px and up the filters that fit
+	share the search row with the Actions; the rest get __next-row, which orders them after the
+	Actions so the rows below span the toolbar.
 */
 .grapple > .grapple-controls > table > thead > tr.toolbar > th {
 	display: flex;
@@ -975,6 +975,18 @@
 	order: 12;
 }
 
+.grapple > .grapple-controls tr.toolbar form.search-form > .search-form-component.grapple-toolbar__next-row {
+	order: 20;
+}
+
+.grapple > .grapple-controls tr.toolbar form.search-form > .search-form-component.grapple-toolbar__next-row:has(> [id="more-dropdown"]) {
+	order: 21;
+}
+
+.grapple > .grapple-controls tr.toolbar form.search-form > .search-form-component.grapple-toolbar__next-row:has(> .reset-button) {
+	order: 22;
+}
+
 /*
 	COBRA-10871: with only a search field there is nothing to clear (Figma 652:39140). Hides the
 	wrapper so the button keeps its reset params; layoutToolbar skips display: none items.
@@ -984,7 +996,7 @@
 }
 
 .grapple > .grapple-controls tr.toolbar #more-filters-row {
-	order: 15;
+	order: 30;
 	flex: 1 0 100%;
 	margin: 0 0 -8px;
 }
@@ -1388,57 +1400,75 @@
 /*
 	Wrapped date range, set by layoutToolbar when one row doesn't fit: label, dropdown (and X) on
 	row 1; From and To share row 2 and its top border. The ::after breaks the line. The From/To
-	labels are absolutely positioned, so they take no place in either row.
+	labels are absolutely positioned, so they take no place in either row. Unstacked, the wrapped
+	filter spans its row (Figma 505:4399) while the others keep their widths.
 */
-.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped,
-.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .more-filter-wrapper > .input-group:has(.grapple-range--wrapped) {
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group.grapple-range--wrapped,
+.grapple > .grapple-controls tr.toolbar .more-filter-wrapper > .input-group:has(.grapple-range--wrapped) {
 	flex-wrap: wrap;
+	width: 100%;
 }
 
-.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped::after {
+.grapple > .grapple-controls tr.toolbar form.search-form > .search-form-component:has(> .input-group.grapple-range--wrapped) {
+	flex: 1 0 100%;
+	min-width: 0;
+}
+
+.grapple > .grapple-controls tr.toolbar #more-filters-row > .more-filter-wrapper:has(.grapple-range--wrapped) {
+	width: 100%;
+	margin-right: 0;
+}
+
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group.grapple-range--wrapped > :is(.range-input, .date-picker) {
+	flex: 1 1 0;
+	width: auto;
+	min-width: 0;
+}
+
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group.grapple-range--wrapped::after {
 	content: '';
 	order: 1;
 	flex: 0 0 100%;
 	height: 0;
 }
 
-.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped > .input-group-text:first-child {
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group.grapple-range--wrapped > .input-group-text:first-child {
 	border-radius: var(--grapple-radius-sm) 0 0 0;
 }
 
-.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped > select:is(.relative-date, .dropdown-with-range) {
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group.grapple-range--wrapped > select:is(.relative-date, .dropdown-with-range) {
 	flex: 1 1 auto;
 	width: auto;
 	border-radius: 0 var(--grapple-radius-sm) 0 0;
 }
 
-.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped > input.range-input {
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group.grapple-range--wrapped > input.range-input {
 	order: 2;
 	margin-top: -1px;
 }
 
-.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped > input.range-input.range-from {
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group.grapple-range--wrapped > input.range-input.range-from {
 	border-left: 1px solid var(--grapple-control-border);
 	border-radius: 0 0 0 var(--grapple-radius-sm);
 }
 
 /* The id outranks equallevel-grapple.css, which squares the right corners of added date pickers */
-.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .search-form-component .input-group.grapple-range--wrapped > input.range-input.range-to,
-.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked #more-filters-row .search-form-component .input-group.grapple-range--wrapped > input.range-input.range-to {
+.grapple > .grapple-controls tr.toolbar .search-form-component .input-group.grapple-range--wrapped > input.range-input.range-to,
+.grapple > .grapple-controls tr.toolbar #more-filters-row .search-form-component .input-group.grapple-range--wrapped > input.range-input.range-to {
 	border-radius: 0 0 var(--grapple-radius-sm) 0;
 }
 
 /* Added filter: the wrappers step aside so the X ends row 1 and From/To span the full width */
-.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .more-filter-wrapper > .input-group:has(.grapple-range--wrapped) > .search-form-component,
-.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .more-filter-wrapper > .input-group > .search-form-component > .input-group.grapple-range--wrapped {
+.grapple > .grapple-controls tr.toolbar .more-filter-wrapper > .input-group:has(.grapple-range--wrapped) > .search-form-component,
+.grapple > .grapple-controls tr.toolbar .more-filter-wrapper > .input-group > .search-form-component > .input-group.grapple-range--wrapped {
 	display: contents;
 }
 
-.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .more-filter-wrapper .search-form-component .input-group.grapple-range--wrapped > select:is(.relative-date, .dropdown-with-range) {
+.grapple > .grapple-controls tr.toolbar .more-filter-wrapper .search-form-component .input-group.grapple-range--wrapped > select:is(.relative-date, .dropdown-with-range) {
 	border-top-right-radius: 0;
 }
 
-.grapple > .grapple-controls tr.toolbar.grapple-toolbar--filters-stacked .more-filter-wrapper > .input-group:has(.grapple-range--wrapped) > .remove-more-filter-wrapper {
+.grapple > .grapple-controls tr.toolbar .more-filter-wrapper > .input-group:has(.grapple-range--wrapped) > .remove-more-filter-wrapper {
 	flex: 0 0 auto;
 	border-radius: 0 var(--grapple-radius-sm) 0 0;
 }
@@ -1870,21 +1900,6 @@
 
 	.grapple > .grapple-scroll > table > thead > tr > th.grapple-row-controls-heading {
 		padding-left: 12px;
-	}
-
-	/* The form wraps its own items, so the Actions stay at the right end of the search row */
-	.grapple > .grapple-controls > table > thead > tr.toolbar > th {
-		flex-wrap: nowrap;
-	}
-
-	.grapple > .grapple-controls tr.toolbar form.search-form {
-		display: flex;
-		flex: 1 1 0;
-		flex-wrap: wrap;
-		align-items: flex-start;
-		min-width: 0;
-		column-gap: 8px;
-		row-gap: 8px;
 	}
 
 	.grapple > .grapple-pagination .grapple-pagination__pages--full {
