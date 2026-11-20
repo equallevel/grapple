@@ -137,25 +137,27 @@ describe 'grapple.css' do
 		source.scan(/([^{}]+)\{([^}]*)\}/).select { |selectors, _| selectors.include?(selector_part) }.map(&:last)
 	end
 
-	# Figma's 760px and 360px table frames keep p-small's 22px heading line height, while body cells
-	# drop to 1.5 below 761px
-	describe "column heading line height" do
+	# Headings and body cells are 14px with a 22px line height at every width, 760px and 360px included
+	describe "cell text" do
 		let(:source) { css.gsub(%r{/\*.*?\*/}m, '') }
 		let(:heading) { '.grapple > .grapple-scroll > table > thead > tr > th' }
 
-		it "is 22px by default, apart from the cell line height" do
+		it "is 14px with a 22px line height by default" do
 			root = source.scan(/^\.grapple \{[^}]*\}/).find { |body| body.include?('--grapple-cell-line-height') }
-			expect(root).to include('--grapple-heading-line-height: 22px;')
-			expect(root).to include('--grapple-cell-line-height: 1.5;')
-		end
-
-		it "applies to the column headings" do
-			bodies = source.scan(/([^{}]+)\{([^}]*)\}/).select { |selectors, _| selectors.strip == heading }.map(&:last)
-			expect(bodies.join).to include('line-height: var(--grapple-heading-line-height)')
+			expect(root).to include('--grapple-cell-font-size: 14px;')
+			expect(root).to include('--grapple-cell-line-height: 22px;')
 		end
 
 		it "stays the same on desktop" do
-			expect(media_blocks('(min-width: 761px)')).not_to include('--grapple-heading-line-height')
+			desktop = media_blocks('(min-width: 761px)')
+			expect(desktop).not_to include('--grapple-cell-font-size')
+			expect(desktop).not_to include('--grapple-cell-line-height')
+		end
+
+		it "gives the column headings the cell line height" do
+			bodies = source.scan(/([^{}]+)\{([^}]*)\}/).select { |selectors, _| selectors.strip == heading }.map(&:last)
+			expect(bodies.join).not_to include('line-height')
+			expect(source).not_to include('--grapple-heading-line-height')
 		end
 	end
 
