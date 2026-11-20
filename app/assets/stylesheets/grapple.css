@@ -309,10 +309,8 @@
 	--grapple-toolbar-row-break: 0px;
 	--grapple-cell-padding: 12px;
 	--grapple-pinned-padding: 12px;
-	--grapple-cell-font-size: 12px;
-	--grapple-cell-line-height: 1.5;
-	/* Headings keep 22px below 761px, where body cells drop to 1.5 */
-	--grapple-heading-line-height: 22px;
+	--grapple-cell-font-size: 14px;
+	--grapple-cell-line-height: 22px;
 	--grapple-menu-toggle-size: 24px;
 
 	/* Lucide icons (lucide-rails 0.7.4), used as masks so they take the element's color */
@@ -473,7 +471,6 @@
 
 .grapple > .grapple-scroll > table > thead > tr > th {
 	font-weight: 600;
-	line-height: var(--grapple-heading-line-height);
 	background-color: var(--grapple-header-bg);
 }
 
@@ -1878,8 +1875,6 @@
 @media (min-width: 761px) {
 	.grapple {
 		--grapple-toolbar-row-break: 8px;
-		--grapple-cell-font-size: 14px;
-		--grapple-cell-line-height: 22px;
 	}
 
 	/* 16px at the table edges, 24px between columns */
